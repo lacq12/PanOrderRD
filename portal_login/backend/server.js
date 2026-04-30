@@ -13,9 +13,9 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 /* ✅ conexión MySQL */
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'admin', // ajusta si cambia
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: 'admin', 
   database: 'panaderia_dona_ana'
 });
 
