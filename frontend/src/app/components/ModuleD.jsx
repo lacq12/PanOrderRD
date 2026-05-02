@@ -1,6 +1,9 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo } from 'react'
 import { useStore } from '../../store.js'
-import { Search, Eye, Edit2, Trash2, ArrowLeft, Plus, ShoppingCart, Package, Check, AlertCircle, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import {
+  Search, Eye, Edit2, Trash2, ArrowLeft, Plus, ShoppingCart,
+  Package, Check, AlertCircle, ChevronRight, Phone, Mail, Briefcase
+} from 'lucide-react'
 import { ClienteForm } from './ModuleC.jsx'
 
 const PAGE_SIZE = 8
@@ -14,7 +17,6 @@ function initials(c) {
   return `${c.nombre?.[0] || ''}${c.apellido?.[0] || ''}`.toUpperCase()
 }
 
-// --- Badges ---
 const pedidoBadge = {
   Confirmado: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400',
   Pendiente:  'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400',
@@ -50,15 +52,15 @@ function ConfirmModal({ onCancel, onConfirm }) {
   )
 }
 
-// --- Step indicator ---
+// --- Stepper ---
 const STEPS = ['Cliente', 'Carrito', 'Fecha', 'Pago', 'Confirmar']
 
 function Stepper({ step }) {
   return (
-    <div className="relative flex items-center justify-between mb-8 px-2">
-      <div className="absolute top-5 left-0 right-0 h-1 bg-zinc-200 dark:bg-[#303440] mx-8">
+    <div className="relative flex items-center justify-between px-4 py-6">
+      <div className="absolute left-8 right-8 top-[2.35rem] h-0.5 bg-zinc-200 dark:bg-[#303440]">
         <div
-          className="h-full bg-linear-to-r from-[#E37A33] to-[#F59E52] transition-all duration-500"
+          className="h-full bg-[#E37A33] transition-all duration-500"
           style={{ width: `${((step - 1) / 4) * 100}%` }}
         />
       </div>
@@ -67,19 +69,17 @@ function Stepper({ step }) {
         const done = n < step
         const active = n === step
         return (
-          <div key={label} className="relative flex flex-col items-center gap-1.5 z-10">
+          <div key={label} className="relative flex flex-col items-center gap-2 z-10">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-              done ? 'bg-linear-to-br from-[#E37A33] to-[#F59E52] text-white' :
-              active ? 'bg-linear-to-br from-[#E37A33] to-[#F59E52] text-white scale-110 ring-4 ring-[#E37A33]/20' :
-              'border-2 border-zinc-200 dark:border-[#303440] bg-white dark:bg-[#1A1D24] text-zinc-400'
+              active ? 'bg-[#E37A33] text-white shadow-md' :
+              done   ? 'bg-[#E37A33] text-white' :
+              'border-2 border-zinc-300 dark:border-[#303440] bg-white dark:bg-[#1A1D24] text-zinc-400'
             }`}>
-              {done ? (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3 8l3.5 3.5L13 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              ) : n}
+              {done ? <Check size={16} strokeWidth={2.5} /> : n}
             </div>
-            <span className={`text-xs font-medium hidden sm:block ${active ? 'text-[#E37A33]' : done ? 'text-zinc-600 dark:text-zinc-300' : 'text-zinc-400 dark:text-[#8D96A5]'}`}>{label}</span>
+            <span className={`text-[10px] font-semibold uppercase tracking-wide hidden sm:block ${
+              active ? 'text-[#E37A33]' : 'text-zinc-400 dark:text-[#8D96A5]'
+            }`}>{label}</span>
           </div>
         )
       })}
@@ -102,7 +102,7 @@ function PedidoDetalle({ pedido, onClose }) {
         <ArrowLeft size={16} /> Volver a pedidos
       </button>
       <div className="flex items-center gap-3">
-        <h1 className="text-xl font-bold">Detalle Pedido #{String(pedido.id).padStart(4,'0')}</h1>
+        <h1 className="text-xl font-bold">Detalle Pedido #{String(pedido.id).padStart(4, '0')}</h1>
         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${pedidoBadge[pedido.estado_pedido] || ''}`}>
           Ped. {pedido.estado_pedido}
         </span>
@@ -112,7 +112,6 @@ function PedidoDetalle({ pedido, onClose }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main column */}
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-zinc-200 dark:border-[#303440] flex items-center justify-between">
@@ -161,9 +160,7 @@ function PedidoDetalle({ pedido, onClose }) {
           </div>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-4">
-          {/* Cliente card */}
           <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-5 space-y-4">
             <h3 className="font-semibold">Cliente</h3>
             <div className="flex items-center gap-3">
@@ -172,7 +169,9 @@ function PedidoDetalle({ pedido, onClose }) {
               </div>
               <div>
                 <p className="font-medium">{cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Cliente no encontrado'}</p>
-                <p className="text-xs text-emerald-500 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />Cliente Activo</p>
+                <p className="text-xs text-emerald-500 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />Cliente Activo
+                </p>
               </div>
             </div>
             {cliente && (
@@ -190,7 +189,6 @@ function PedidoDetalle({ pedido, onClose }) {
             )}
           </div>
 
-          {/* Pago card */}
           <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Pago</h3>
@@ -244,7 +242,6 @@ function PedidoForm({ pedidoId, onClose }) {
   const [showNewCliente, setShowNewCliente] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
-
   const montoTotal = carrito.reduce((sum, item) => sum + item.precio_unitario * item.cantidad, 0)
   const estadoPago = anticipo <= 0 ? 'Pendiente' : anticipo >= montoTotal ? 'Completado' : 'Parcial'
 
@@ -270,10 +267,10 @@ function PedidoForm({ pedidoId, onClose }) {
   }
 
   const changeQty = (prodId, delta) => {
-    setCarrito(prev => {
-      const updated = prev.map(i => i.producto_id === prodId ? { ...i, cantidad: i.cantidad + delta } : i)
-      return updated.filter(i => i.cantidad > 0)
-    })
+    setCarrito(prev =>
+      prev.map(i => i.producto_id === prodId ? { ...i, cantidad: i.cantidad + delta } : i)
+         .filter(i => i.cantidad > 0)
+    )
   }
 
   const cartQty = (prodId) => carrito.find(i => i.producto_id === prodId)?.cantidad || 0
@@ -284,9 +281,7 @@ function PedidoForm({ pedidoId, onClose }) {
       if (!clienteId) return setError('Debes seleccionar o crear un cliente para continuar.')
       if (!empleadoId) return setError('Debes seleccionar un empleado para continuar.')
     }
-    if (step === 2) {
-      if (carrito.length === 0) return setError('Debes agregar al menos un producto al carrito.')
-    }
+    if (step === 2 && carrito.length === 0) return setError('Debes agregar al menos un producto al carrito.')
     if (step === 3) {
       if (!fechaEntrega) return setError('La fecha de entrega es requerida.')
       if (fechaEntrega <= today) return setError('La fecha de entrega debe ser posterior a la fecha actual.')
@@ -319,43 +314,78 @@ function PedidoForm({ pedidoId, onClose }) {
   }
 
   const inputCls = "w-full bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl px-4 py-2.5 text-sm outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
-
   const clienteSel = clientes.find(c => c.id === clienteId)
-  const empleadoSel = empleados.find(e => e.id === parseInt(empleadoId))
+
+  const stepMeta = [
+    { title: 'Datos Generales',    sub: 'Busca el cliente, registra uno nuevo, y asigna empleado' },
+    { title: 'Carrito de Compras', sub: 'Agrega los productos al pedido' },
+    { title: 'Fecha de Entrega',   sub: 'Define cuándo se entregará el pedido' },
+    { title: 'Registro de Cobro',  sub: 'Configura el anticipo y método de pago' },
+    { title: 'Confirmación',       sub: 'Revisa y guarda el pedido' },
+  ]
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-      <button onClick={onClose} className="flex items-center gap-2 text-sm text-zinc-500 dark:text-[#8D96A5] hover:text-zinc-800 dark:hover:text-white transition-colors">
-        <ArrowLeft size={16} /> Volver a pedidos
-      </button>
-      <h1 className="text-xl font-bold">{existing ? `Editar Pedido #${String(existing.id).padStart(4,'0')}` : 'Nuevo Pedido'}</h1>
+    <div className="animate-in fade-in duration-300 flex flex-col h-full -m-4 sm:-m-6">
 
-      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6">
+      {/* Page header */}
+      <div className="px-6 pt-6 pb-0 shrink-0">
+        <button onClick={onClose} className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-700 dark:hover:text-white transition-colors mb-1">
+          <ArrowLeft size={15} />
+        </button>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
+          {existing ? `Editar Pedido #${String(existing.id).padStart(4, '0')}` : 'Nuevo Pedido'}
+        </h1>
+        <p className="text-sm text-zinc-400 dark:text-[#8D96A5]">Configuración paso a paso</p>
+      </div>
+
+      {/* Stepper — outside card */}
+      <div className="px-4 shrink-0">
         <Stepper step={step} />
+      </div>
 
+      {/* Card */}
+      <div className="flex-1 flex flex-col min-h-0 mx-4 mb-4 bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden">
+
+        {/* Step header row */}
+        <div className="flex items-start justify-between px-6 py-5 shrink-0">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#E37A33] text-white flex items-center justify-center font-bold text-sm shrink-0">
+              {step}
+            </div>
+            <div>
+              <h2 className="font-bold text-zinc-900 dark:text-white">{stepMeta[step - 1].title}</h2>
+              <p className="text-sm text-zinc-400 dark:text-[#8D96A5] mt-0.5">{stepMeta[step - 1].sub}</p>
+            </div>
+          </div>
+          {step === 1 && !showNewCliente && (
+            <button
+              onClick={() => setShowNewCliente(true)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#E37A33] hover:bg-[#CC6824] text-white text-sm font-medium rounded-xl transition-colors shrink-0"
+            >
+              <Plus size={15} /> Nuevo Cliente
+            </button>
+          )}
+        </div>
+
+        {/* Error */}
         {error && (
-          <div className="flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 mb-6 text-sm">
-            <AlertCircle size={16} className="shrink-0" />
-            {error}
+          <div className="mx-6 mb-2 flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm shrink-0">
+            <AlertCircle size={16} className="shrink-0" /> {error}
           </div>
         )}
 
-        {/* Step 1 — Cliente + Empleado */}
-        {step === 1 && (
-          <div className="space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold">Seleccionar cliente</h3>
-                <button
-                  onClick={() => setShowNewCliente(v => !v)}
-                  className="flex items-center gap-1.5 text-xs text-[#E37A33] hover:text-[#CC6824] transition-colors"
-                >
-                  <Plus size={14} /> Nuevo Cliente
-                </button>
-              </div>
+        {/* Scrollable step content */}
+        <div className="flex-1 overflow-y-auto px-6 pb-4">
+
+          {/* Step 1 — Cliente + Empleado */}
+          {step === 1 && (
+            <div className="space-y-5">
               {showNewCliente ? (
-                <div className="border border-zinc-200 dark:border-[#303440] rounded-2xl p-4 mb-4">
-                  <p className="font-medium text-sm mb-4">Crear nuevo cliente</p>
+                <div className="border border-zinc-200 dark:border-[#303440] rounded-2xl p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="font-semibold text-sm">Crear nuevo cliente</p>
+                    <button onClick={() => setShowNewCliente(false)} className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-white transition-colors">Cancelar</button>
+                  </div>
                   <ClienteForm
                     clienteId={null}
                     onClose={() => setShowNewCliente(false)}
@@ -364,267 +394,266 @@ function PedidoForm({ pedidoId, onClose }) {
                 </div>
               ) : (
                 <>
-                  <div className="relative mb-3">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                  <div className="relative">
+                    <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
                     <input
                       value={clienteSearch}
                       onChange={e => setClienteSearch(e.target.value)}
-                      placeholder="Buscar cliente..."
-                      className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
+                      placeholder="Buscar cliente por nombre, teléfono..."
+                      className="w-full pl-11 pr-4 py-3 text-sm bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white placeholder:text-zinc-400"
                     />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+                  <div className="space-y-2">
                     {clienteFiltrado.length === 0 ? (
-                      <p className="text-sm text-zinc-400 py-4 col-span-2 text-center">No hay clientes que coincidan.</p>
+                      <p className="text-sm text-zinc-400 py-6 text-center">No hay clientes que coincidan.</p>
                     ) : clienteFiltrado.map(c => (
                       <button
                         key={c.id}
                         onClick={() => setClienteId(c.id)}
-                        className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${c.id === clienteId ? 'border-[#E37A33] bg-orange-50 dark:bg-[#E37A33]/10' : 'border-zinc-200 dark:border-[#303440] hover:bg-zinc-50 dark:hover:bg-[#242730]'}`}
+                        className={`w-full flex items-center gap-4 p-4 rounded-2xl border text-left transition-all ${
+                          c.id === clienteId
+                            ? 'border-[#E37A33] bg-orange-50 dark:bg-[#E37A33]/10'
+                            : 'border-zinc-200 dark:border-[#303440] hover:bg-zinc-50 dark:hover:bg-[#242730]'
+                        }`}
                       >
-                        <div className="w-9 h-9 rounded-full bg-orange-100 dark:bg-[#E37A33]/15 text-[#E37A33] flex items-center justify-center text-xs font-bold shrink-0">
+                        <div className="w-11 h-11 rounded-xl bg-zinc-100 dark:bg-[#242730] text-zinc-600 dark:text-zinc-300 flex items-center justify-center text-sm font-bold shrink-0">
                           {initials(c)}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">{c.nombre} {c.apellido}</p>
-                          <p className="text-xs text-zinc-400 truncate">{c.telefono}</p>
-                          {c.email && <p className="text-xs text-zinc-400 truncate">{c.email}</p>}
+                          <p className="font-semibold text-zinc-900 dark:text-white truncate">{c.nombre} {c.apellido}</p>
+                          <div className="flex items-center gap-4 mt-0.5">
+                            <span className="flex items-center gap-1 text-xs text-zinc-400"><Phone size={11} />{c.telefono}</span>
+                            {c.email && <span className="flex items-center gap-1 text-xs text-zinc-400"><Mail size={11} />{c.email}</span>}
+                          </div>
                         </div>
                       </button>
                     ))}
                   </div>
                 </>
               )}
-            </div>
 
-            <div>
-              <label className="font-semibold text-sm block mb-3">Seleccionar empleado</label>
-              <select
-                value={empleadoId}
-                onChange={e => setEmpleadoId(e.target.value)}
-                className={inputCls}
-              >
-                <option value="">— Selecciona un empleado —</option>
-                {empleados.map(e => (
-                  <option key={e.id} value={e.id}>{e.nombre} - {e.cargo || ''}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2 — Carrito */}
-        {step === 2 && (
-          <div className="space-y-4">
-            <div className="text-right">
-              <span className="text-sm text-zinc-500 dark:text-[#8D96A5]">Total: </span>
-              <span className="font-bold text-[#E37A33]">{fmt(montoTotal)}</span>
-            </div>
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Catalog */}
-              <div className="flex-1 lg:w-2/3 space-y-3">
-                <div className="relative">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                  <input
-                    value={prodSearch}
-                    onChange={e => setProdSearch(e.target.value)}
-                    placeholder="Buscar producto..."
-                    className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
-                  />
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Briefcase size={14} className="text-[#E37A33]" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-[#8D96A5]">Empleado Asignado</span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-80 overflow-y-auto pr-1">
-                  {prodFiltrado.length === 0 ? (
-                    <p className="text-sm text-zinc-400 py-6 col-span-3 text-center">No hay productos.</p>
-                  ) : prodFiltrado.map(p => {
-                    const qty = cartQty(p.id)
-                    return (
-                      <button
-                        key={p.id}
-                        onClick={() => addToCart(p)}
-                        className="relative border border-zinc-200 dark:border-[#303440] rounded-xl p-3 text-left hover:border-[#E37A33]/50 hover:bg-orange-50/30 dark:hover:bg-[#E37A33]/5 transition-all"
-                      >
-                        {qty > 0 && (
-                          <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#E37A33] text-white text-xs flex items-center justify-center font-bold">{qty}</span>
-                        )}
-                        <p className="text-sm font-medium truncate">{p.nombre}</p>
-                        <p className="text-xs text-zinc-400 mb-2">{p.categoria}</p>
-                        <p className="text-sm font-bold text-[#E37A33]">{fmt(p.precio)}</p>
-                      </button>
-                    )
-                  })}
-                </div>
+                <select
+                  value={empleadoId}
+                  onChange={e => setEmpleadoId(e.target.value)}
+                  className={inputCls}
+                >
+                  <option value="">Selecciona un empleado...</option>
+                  {empleados.map(e => (
+                    <option key={e.id} value={e.id}>{e.nombre} - {e.cargo || ''}</option>
+                  ))}
+                </select>
               </div>
+            </div>
+          )}
 
-              {/* Cart */}
-              <div className="lg:w-1/3 border border-zinc-200 dark:border-[#303440] rounded-2xl flex flex-col">
-                <div className="px-4 py-3 border-b border-zinc-200 dark:border-[#303440]">
-                  <div className="flex items-center gap-2">
+          {/* Step 2 — Carrito */}
+          {step === 2 && (
+            <div className="space-y-4">
+              <div className="text-right">
+                <span className="text-sm text-zinc-500 dark:text-[#8D96A5]">Total: </span>
+                <span className="font-bold text-[#E37A33]">{fmt(montoTotal)}</span>
+              </div>
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex-1 space-y-3">
+                  <div className="relative">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                    <input
+                      value={prodSearch}
+                      onChange={e => setProdSearch(e.target.value)}
+                      placeholder="Buscar producto..."
+                      className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1">
+                    {prodFiltrado.length === 0 ? (
+                      <p className="text-sm text-zinc-400 py-6 col-span-3 text-center">No hay productos.</p>
+                    ) : prodFiltrado.map(p => {
+                      const qty = cartQty(p.id)
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => addToCart(p)}
+                          className="relative border border-zinc-200 dark:border-[#303440] rounded-xl p-3 text-left hover:border-[#E37A33]/50 hover:bg-orange-50/30 dark:hover:bg-[#E37A33]/5 transition-all"
+                        >
+                          {qty > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#E37A33] text-white text-xs flex items-center justify-center font-bold">{qty}</span>
+                          )}
+                          <p className="text-sm font-medium truncate">{p.nombre}</p>
+                          <p className="text-xs text-zinc-400 mb-2">{p.categoria}</p>
+                          <p className="text-sm font-bold text-[#E37A33]">{fmt(p.precio)}</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div className="lg:w-72 border border-zinc-200 dark:border-[#303440] rounded-2xl flex flex-col">
+                  <div className="px-4 py-3 border-b border-zinc-200 dark:border-[#303440] flex items-center gap-2">
                     <ShoppingCart size={16} className="text-[#E37A33]" />
                     <span className="font-semibold text-sm">Carrito ({carrito.length})</span>
                   </div>
-                </div>
-                <div className="flex-1 divide-y divide-zinc-100 dark:divide-[#303440]/50 overflow-y-auto max-h-60">
-                  {carrito.length === 0 ? (
-                    <p className="text-sm text-zinc-400 text-center py-8">Sin productos</p>
-                  ) : carrito.map(item => {
-                    const prod = productos.find(p => p.id === item.producto_id)
-                    return (
-                      <div key={item.producto_id} className="px-4 py-3 flex items-center gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{prod?.nombre}</p>
-                          <p className="text-xs text-zinc-400">{fmt(item.precio_unitario)} × {item.cantidad} = {fmt(item.precio_unitario * item.cantidad)}</p>
+                  <div className="flex-1 divide-y divide-zinc-100 dark:divide-[#303440]/50 overflow-y-auto max-h-60">
+                    {carrito.length === 0 ? (
+                      <p className="text-sm text-zinc-400 text-center py-8">Sin productos</p>
+                    ) : carrito.map(item => {
+                      const prod = productos.find(p => p.id === item.producto_id)
+                      return (
+                        <div key={item.producto_id} className="px-4 py-3 flex items-center gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{prod?.nombre}</p>
+                            <p className="text-xs text-zinc-400">{fmt(item.precio_unitario)} × {item.cantidad} = {fmt(item.precio_unitario * item.cantidad)}</p>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button onClick={() => changeQty(item.producto_id, -1)} className="w-6 h-6 rounded-full border border-zinc-200 dark:border-[#303440] flex items-center justify-center text-xs hover:bg-zinc-100 dark:hover:bg-[#242730]">−</button>
+                            <span className="w-5 text-center text-sm">{item.cantidad}</span>
+                            <button onClick={() => changeQty(item.producto_id, 1)} className="w-6 h-6 rounded-full bg-[#E37A33] text-white flex items-center justify-center text-xs hover:bg-[#CC6824]">+</button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button onClick={() => changeQty(item.producto_id, -1)} className="w-6 h-6 rounded-full border border-zinc-200 dark:border-[#303440] flex items-center justify-center text-xs hover:bg-zinc-100 dark:hover:bg-[#242730]">−</button>
-                          <span className="w-5 text-center text-sm">{item.cantidad}</span>
-                          <button onClick={() => changeQty(item.producto_id, 1)} className="w-6 h-6 rounded-full bg-[#E37A33] text-white flex items-center justify-center text-xs hover:bg-[#CC6824]">+</button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-                <div className="px-4 py-3 border-t border-zinc-200 dark:border-[#303440] bg-linear-to-r from-[#E37A33]/10 to-[#F59E52]/10 rounded-b-2xl">
-                  <div className="flex justify-between items-center">
+                      )
+                    })}
+                  </div>
+                  <div className="px-4 py-3 border-t border-zinc-200 dark:border-[#303440] bg-linear-to-r from-[#E37A33]/10 to-[#F59E52]/10 rounded-b-2xl flex justify-between items-center">
                     <span className="text-sm font-medium">Total</span>
                     <span className="font-bold text-[#E37A33]">{fmt(montoTotal)}</span>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Step 3 — Fecha */}
-        {step === 3 && (
-          <div className="space-y-4 max-w-lg">
-            <div>
-              <label className="text-sm font-medium block mb-1.5">Fecha de entrega *</label>
-              <input
-                type="date"
-                min={today}
-                value={fechaEntrega}
-                onChange={e => setFechaEntrega(e.target.value)}
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium block mb-1.5">Notas adicionales</label>
-              <textarea
-                value={notas}
-                onChange={e => setNotas(e.target.value)}
-                rows={3}
-                placeholder="Instrucciones especiales..."
-                className={`${inputCls} resize-none`}
-              />
-            </div>
-            <div className="bg-orange-50 dark:bg-[#E37A33]/10 border border-orange-200 dark:border-[#E37A33]/20 rounded-xl p-4 text-sm text-[#E37A33]">
-              La fecha de entrega debe ser posterior al día de hoy para asegurar el tiempo de preparación.
-            </div>
-          </div>
-        )}
-
-        {/* Step 4 — Pago */}
-        {step === 4 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="font-semibold">Registro de Cobro</h3>
-              <div className="text-center py-4">
-                <p className="text-xs text-zinc-500 dark:text-[#8D96A5] mb-1">Monto Total</p>
-                <p className="text-4xl font-bold text-[#E37A33]">{fmt(montoTotal)}</p>
+          {/* Step 3 — Fecha */}
+          {step === 3 && (
+            <div className="space-y-4 max-w-lg">
+              <div>
+                <label className="text-sm font-medium block mb-1.5">Fecha de entrega *</label>
+                <input
+                  type="date"
+                  min={today}
+                  value={fechaEntrega}
+                  onChange={e => setFechaEntrega(e.target.value)}
+                  className={inputCls}
+                />
               </div>
               <div>
-                <label className="text-sm font-medium block mb-1.5">Anticipo</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">$</span>
-                  <input
-                    type="number" min="0" step="0.01"
-                    value={anticipo}
-                    onChange={e => setAnticipo(parseFloat(e.target.value) || 0)}
-                    className={`${inputCls} pl-8`}
-                  />
-                </div>
+                <label className="text-sm font-medium block mb-1.5">Notas adicionales</label>
+                <textarea
+                  value={notas}
+                  onChange={e => setNotas(e.target.value)}
+                  rows={3}
+                  placeholder="Instrucciones especiales..."
+                  className={`${inputCls} resize-none`}
+                />
               </div>
-              <div className="flex gap-2">
-                <button onClick={() => setAnticipo(0)} className="flex-1 py-2 text-sm border border-zinc-200 dark:border-[#303440] rounded-xl hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">No Pago</button>
-                <button onClick={() => setAnticipo(montoTotal / 2)} className="flex-1 py-2 text-sm border border-zinc-200 dark:border-[#303440] rounded-xl hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">50%</button>
-                <button onClick={() => setAnticipo(montoTotal)} className="flex-1 py-2 text-sm bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors">Total</button>
-              </div>
-              <div className="flex justify-between text-sm pt-2 border-t border-zinc-200 dark:border-[#303440]">
-                <span className="text-zinc-500 dark:text-[#8D96A5]">Saldo Pendiente</span>
-                <span className="font-semibold">{fmt(Math.max(0, montoTotal - anticipo))}</span>
+              <div className="bg-orange-50 dark:bg-[#E37A33]/10 border border-orange-200 dark:border-[#E37A33]/20 rounded-xl p-4 text-sm text-[#E37A33]">
+                La fecha de entrega debe ser posterior al día de hoy para asegurar el tiempo de preparación.
               </div>
             </div>
+          )}
 
-            <div className="space-y-4">
-              <h3 className="font-semibold">Detalles del Pedido</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between py-2 border-b border-zinc-100 dark:border-[#303440]/50">
-                  <span className="text-zinc-500 dark:text-[#8D96A5]">Cliente</span>
-                  <span className="font-medium">{clienteSel ? `${clienteSel.nombre} ${clienteSel.apellido}` : '—'}</span>
+          {/* Step 4 — Pago */}
+          {step === 4 && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="text-center py-4">
+                  <p className="text-xs text-zinc-500 dark:text-[#8D96A5] mb-1">Monto Total</p>
+                  <p className="text-4xl font-bold text-[#E37A33]">{fmt(montoTotal)}</p>
                 </div>
-                <div className="flex justify-between py-2 border-b border-zinc-100 dark:border-[#303440]/50">
-                  <span className="text-zinc-500 dark:text-[#8D96A5]">Fecha programada</span>
-                  <span>{fechaEntrega || '—'}</span>
+                <div>
+                  <label className="text-sm font-medium block mb-1.5">Anticipo</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">$</span>
+                    <input
+                      type="number" min="0" step="0.01"
+                      value={anticipo}
+                      onChange={e => setAnticipo(parseFloat(e.target.value) || 0)}
+                      className={`${inputCls} pl-8`}
+                    />
+                  </div>
                 </div>
-                <div className="flex justify-between py-2 border-b border-zinc-100 dark:border-[#303440]/50">
-                  <span className="text-zinc-500 dark:text-[#8D96A5]">Unidades totales</span>
-                  <span>{carrito.reduce((s, i) => s + i.cantidad, 0)}</span>
+                <div className="flex gap-2">
+                  <button onClick={() => setAnticipo(0)} className="flex-1 py-2 text-sm border border-zinc-200 dark:border-[#303440] rounded-xl hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">No Pago</button>
+                  <button onClick={() => setAnticipo(montoTotal / 2)} className="flex-1 py-2 text-sm border border-zinc-200 dark:border-[#303440] rounded-xl hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">50%</button>
+                  <button onClick={() => setAnticipo(montoTotal)} className="flex-1 py-2 text-sm bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 rounded-xl hover:bg-emerald-100 transition-colors">Total</button>
                 </div>
-                <div className="flex justify-between py-2 border-b border-zinc-100 dark:border-[#303440]/50">
-                  <span className="text-zinc-500 dark:text-[#8D96A5]">Productos distintos</span>
-                  <span>{carrito.length}</span>
+                <div className="flex justify-between text-sm pt-2 border-t border-zinc-200 dark:border-[#303440]">
+                  <span className="text-zinc-500 dark:text-[#8D96A5]">Saldo Pendiente</span>
+                  <span className="font-semibold">{fmt(Math.max(0, montoTotal - anticipo))}</span>
                 </div>
-                <div className="flex justify-between py-2">
-                  <span className="text-zinc-500 dark:text-[#8D96A5]">Estado Previsto</span>
-                  <div className="flex gap-1">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${pedidoBadge['Pendiente']}`}>Ped. Pendiente</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${pagoBadge[estadoPago]}`}>Pago {estadoPago}</span>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="font-semibold">Detalles del Pedido</h3>
+                <div className="space-y-2 text-sm">
+                  {[
+                    { label: 'Cliente', value: clienteSel ? `${clienteSel.nombre} ${clienteSel.apellido}` : '—' },
+                    { label: 'Fecha programada', value: fechaEntrega || '—' },
+                    { label: 'Unidades totales', value: carrito.reduce((s, i) => s + i.cantidad, 0) },
+                    { label: 'Productos distintos', value: carrito.length },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex justify-between py-2 border-b border-zinc-100 dark:border-[#303440]/50">
+                      <span className="text-zinc-500 dark:text-[#8D96A5]">{label}</span>
+                      <span className="font-medium">{value}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between py-2">
+                    <span className="text-zinc-500 dark:text-[#8D96A5]">Estado Previsto</span>
+                    <div className="flex gap-1">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${pedidoBadge['Pendiente']}`}>Ped. Pendiente</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${pagoBadge[estadoPago]}`}>Pago {estadoPago}</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Step 5 — Confirmación */}
-        {step === 5 && (
-          <div className="flex flex-col items-center text-center gap-6 py-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl" />
-              <div className="relative w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center">
-                <Check size={36} className="text-white" />
+          {/* Step 5 — Confirmación */}
+          {step === 5 && (
+            <div className="flex flex-col items-center text-center gap-6 py-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl" />
+                <div className="relative w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center">
+                  <Check size={36} className="text-white" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold">¡Todo listo para guardar!</h3>
+                <p className="text-sm text-zinc-500 dark:text-[#8D96A5] mt-1">Revisa el resumen antes de confirmar</p>
+              </div>
+              <div className="flex divide-x divide-zinc-200 dark:divide-[#303440] border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden w-full max-w-sm">
+                {[
+                  { label: 'Total', value: fmt(montoTotal) },
+                  { label: 'Anticipo', value: fmt(anticipo) },
+                  { label: 'Saldo', value: fmt(Math.max(0, montoTotal - anticipo)) },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex-1 py-4 px-3 text-center">
+                    <p className="text-xs text-zinc-500 dark:text-[#8D96A5] mb-1">{label}</p>
+                    <p className="font-bold text-sm">{value}</p>
+                  </div>
+                ))}
               </div>
             </div>
-            <div>
-              <h3 className="text-xl font-bold">¡Todo listo para guardar!</h3>
-              <p className="text-sm text-zinc-500 dark:text-[#8D96A5] mt-1">Revisa el resumen antes de confirmar</p>
-            </div>
-            <div className="flex divide-x divide-zinc-200 dark:divide-[#303440] border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden w-full max-w-sm">
-              {[
-                { label: 'Total', value: fmt(montoTotal) },
-                { label: 'Anticipo', value: fmt(anticipo) },
-                { label: 'Saldo', value: fmt(Math.max(0, montoTotal - anticipo)) },
-              ].map(({ label, value }) => (
-                <div key={label} className="flex-1 py-4 px-3 text-center">
-                  <p className="text-xs text-zinc-500 dark:text-[#8D96A5] mb-1">{label}</p>
-                  <p className="font-bold text-sm">{value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+          )}
+
+        </div>{/* end scrollable */}
 
         {/* Footer nav */}
-        <div className="flex justify-between mt-8 pt-6 border-t border-zinc-200 dark:border-[#303440]">
+        <div className="flex justify-between items-center px-6 py-4 border-t border-zinc-200 dark:border-[#303440] shrink-0">
           <button
             onClick={step === 1 ? onClose : goBack}
-            className="px-4 py-2.5 border border-zinc-200 dark:border-[#303440] rounded-xl text-sm font-medium hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 border border-zinc-200 dark:border-[#303440] rounded-xl text-sm font-medium hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors"
           >
+            <ArrowLeft size={15} />
             {step === 1 ? 'Cancelar' : 'Atrás'}
           </button>
           {step < 5 ? (
-            <button onClick={goNext} className="px-6 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors">
-              Siguiente
+            <button onClick={goNext} className="flex items-center gap-2 px-6 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors">
+              Siguiente <ChevronRight size={15} />
             </button>
           ) : (
             <button onClick={handleSave} className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-medium transition-colors">
@@ -632,7 +661,8 @@ function PedidoForm({ pedidoId, onClose }) {
             </button>
           )}
         </div>
-      </div>
+
+      </div>{/* end card */}
     </div>
   )
 }
@@ -652,20 +682,12 @@ export default function ModuleD() {
     return pedidos.filter(p => {
       const c = clientes.find(cl => cl.id === p.cliente_id)
       const nombre = c ? `${c.nombre} ${c.apellido}`.toLowerCase() : ''
-      return String(p.id).padStart(4,'0').includes(q) || nombre.includes(q) || p.estado_pedido?.toLowerCase().includes(q)
+      return String(p.id).padStart(4, '0').includes(q) || nombre.includes(q) || p.estado_pedido?.toLowerCase().includes(q)
     })
   }, [pedidos, clientes, search])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  const openView = (pedido) => {
-    if (pedido.estado_pedido === 'Entregado' || pedido.estado_pedido === 'Cancelado') {
-      setDetailId(pedido.id); setView('detail')
-    } else {
-      setDetailId(pedido.id); setView('detail')
-    }
-  }
 
   if (view === 'form') return <PedidoForm pedidoId={editId} onClose={() => { setView('list'); setEditId(null) }} />
   if (view === 'detail') {
@@ -688,7 +710,10 @@ export default function ModuleD() {
           <h1 className="text-xl font-bold">Pedidos</h1>
           <p className="text-sm text-zinc-500 dark:text-[#8D96A5]">Registro y seguimiento de órdenes</p>
         </div>
-        <button onClick={() => { setEditId(null); setView('form') }} className="flex items-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-lg text-sm font-medium transition-colors">
+        <button
+          onClick={() => { setEditId(null); setView('form') }}
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors"
+        >
           <Plus size={16} /> Nuevo Pedido
         </button>
       </div>
@@ -699,7 +724,7 @@ export default function ModuleD() {
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1) }}
           placeholder="Buscar por ID, cliente o estado..."
-          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-lg outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
+          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
         />
       </div>
 
@@ -726,7 +751,7 @@ export default function ModuleD() {
                 const empleado = empleados.find(e => e.id === p.empleado_id)
                 return (
                   <tr key={p.id} className="hover:bg-zinc-50/50 dark:hover:bg-[#242730]/30 transition-colors">
-                    <td className="px-6 py-4 font-mono text-xs text-zinc-500">#{String(p.id).padStart(4,'0')}</td>
+                    <td className="px-6 py-4 font-mono text-xs text-zinc-500">#{String(p.id).padStart(4, '0')}</td>
                     <td className="px-6 py-4 font-medium">{cliente ? `${cliente.nombre} ${cliente.apellido}` : '—'}</td>
                     <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{empleado?.nombre || '—'}</td>
                     <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{p.fecha_registro || '—'}</td>
@@ -740,7 +765,10 @@ export default function ModuleD() {
                     <td className="px-6 py-4 font-medium">{fmt(p.monto_total)}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
-                        <button onClick={() => openView(p)} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white">
+                        <button
+                          onClick={() => { setDetailId(p.id); setView('detail') }}
+                          className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white"
+                        >
                           <Eye size={15} />
                         </button>
                         <button
@@ -750,7 +778,10 @@ export default function ModuleD() {
                         >
                           <Edit2 size={15} />
                         </button>
-                        <button onClick={() => setDeleteId(p.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500">
+                        <button
+                          onClick={() => setDeleteId(p.id)}
+                          className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500"
+                        >
                           <Trash2 size={15} />
                         </button>
                       </div>
@@ -764,7 +795,7 @@ export default function ModuleD() {
         {filtered.length > 0 && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-[#303440]">
             <span className="text-xs text-zinc-500 dark:text-[#8D96A5]">
-              Mostrando {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)} a {Math.min(page * PAGE_SIZE, filtered.length)} de {filtered.length} resultados
+              Mostrando {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} de {filtered.length}
             </span>
             <div className="flex items-center gap-1">
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Prev</button>

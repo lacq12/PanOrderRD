@@ -136,9 +136,9 @@ function ProductoModal({ productoId, onClose }) {
                 <button
                   type="button"
                   onClick={addIngrediente}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-[#E37A33] hover:bg-[#CC6824] text-white text-sm font-medium rounded-xl transition-colors"
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#E37A33] hover:bg-[#CC6824] text-white text-xs font-medium rounded-lg transition-colors shrink-0"
                 >
-                  <Plus size={15} /> Añadir ingrediente
+                  <Plus size={13} /> <span>Añadir</span>
                 </button>
               </div>
 

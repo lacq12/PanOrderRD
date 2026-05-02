@@ -62,32 +62,11 @@ export default function App() {
   // ─── DASHBOARD ────────────────────────────────────────────────────────────
   if (view === 'dashboard') {
     return (
-      // Pantalla completa: fondo neutro del "lienzo"
-      <div className="
-        min-h-screen w-full
-        bg-zinc-200 dark:bg-[#0C0E12]
-        flex items-center justify-center
-        lg:p-5
-      ">
+      <div className="relative flex w-full h-screen overflow-hidden bg-white dark:bg-[#1A1D24] text-zinc-900 dark:text-white">
         {/* Overlay mobile sidebar */}
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
         )}
-
-        {/*
-          Contenedor principal flotante.
-          - Mobile:  full screen, sin bordes, sin sombra (app nativa)
-          - Desktop: tarjeta centrada con bordes redondeados, sombra y márgenes
-        */}
-        <div className="
-          relative flex
-          w-full h-screen
-          lg:max-w-360 lg:h-[calc(100vh-2.5rem)]
-          lg:rounded-3xl lg:shadow-2xl lg:overflow-hidden
-          overflow-hidden
-          bg-zinc-100 dark:bg-[#1A1D24]
-          text-zinc-900 dark:text-white
-        ">
 
           {/* ── Sidebar (es el fondo/base del contenedor) ── */}
           <aside className={`
@@ -172,18 +151,8 @@ export default function App() {
             </div>
           </aside>
 
-          {/*
-            Columna de contenido.
-            En desktop: padding alrededor para que la tarjeta blanca "flote" sobre el sidebar.
-          */}
-          <div className="flex-1 flex flex-col min-w-0 lg:p-2 lg:pl-0">
-
-            {/*
-              Tarjeta de contenido — la "hoja de papel" blanca encima del sidebar.
-              - Mobile:  sin bordes extra, ocupa todo
-              - Desktop: rounded-2xl, bg blanco/oscuro más elevado, overflow hidden
-            */}
-            <div className="flex-1 flex flex-col bg-white dark:bg-[#242730] lg:rounded-2xl overflow-hidden">
+          {/* Columna de contenido */}
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
               {/* Topbar */}
               <header className="h-14 shrink-0 flex items-center justify-between px-4 sm:px-6 border-b border-zinc-100 dark:border-white/5">
@@ -223,9 +192,7 @@ export default function App() {
               <main className="flex-1 overflow-y-auto p-4 sm:p-6">
                 {renderContent()}
               </main>
-            </div>
           </div>
-        </div>
       </div>
     )
   }
