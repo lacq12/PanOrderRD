@@ -1,16 +1,4 @@
-import { Package, CheckCircle2, Clock, X } from 'lucide-react'
-
-const NOTIFICACIONES = [
-  { id: 1, titulo: 'Nuevo pedido recibido',      desc: 'Un cliente realizó un nuevo pedido',  tiempo: 'Hace 5 min',  icon: 'package', color: 'text-[#E37A33] bg-[#E37A33]/10' },
-  { id: 2, titulo: 'Pago recibido',              desc: 'Se registró un anticipo',             tiempo: 'Hace 30 min', icon: 'check',   color: 'text-emerald-500 bg-emerald-500/10' },
-  { id: 3, titulo: 'Pedido listo para entregar', desc: 'Un pedido está listo',                tiempo: 'Hace 1 hora', icon: 'clock',   color: 'text-blue-400 bg-blue-400/10' },
-]
-
-const iconMap = {
-  package: <Package size={16} />,
-  check:   <CheckCircle2 size={16} />,
-  clock:   <Clock size={16} />,
-}
+import { Bell, X } from 'lucide-react'
 
 export default function NotificationsPanel({ isOpen, onClose }) {
   if (!isOpen) return null
@@ -22,17 +10,10 @@ export default function NotificationsPanel({ isOpen, onClose }) {
           <X size={16} />
         </button>
       </div>
-      <div className="divide-y divide-zinc-100 dark:divide-[#303440]/50">
-        {NOTIFICACIONES.map(n => (
-          <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-[#242730]/30 transition-colors">
-            <span className={`p-2 rounded-xl shrink-0 ${n.color}`}>{iconMap[n.icon]}</span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{n.titulo}</p>
-              <p className="text-xs text-zinc-500 dark:text-[#8D96A5]">{n.desc}</p>
-              <p className="text-xs text-zinc-400 dark:text-[#8D96A5]/60 mt-0.5">{n.tiempo}</p>
-            </div>
-          </div>
-        ))}
+      <div className="flex flex-col items-center justify-center py-10 px-4 text-center gap-2">
+        <Bell size={28} className="text-zinc-300 dark:text-[#303440]" />
+        <p className="text-sm font-medium text-zinc-500 dark:text-[#8D96A5]">Sin notificaciones</p>
+        <p className="text-xs text-zinc-400 dark:text-[#8D96A5]/60">Aquí aparecerán tus alertas cuando estén disponibles.</p>
       </div>
     </div>
   )
