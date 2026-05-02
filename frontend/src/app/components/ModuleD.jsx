@@ -58,7 +58,7 @@ function Stepper({ step }) {
     <div className="relative flex items-center justify-between mb-8 px-2">
       <div className="absolute top-5 left-0 right-0 h-1 bg-zinc-200 dark:bg-[#303440] mx-8">
         <div
-          className="h-full bg-gradient-to-r from-[#E37A33] to-[#F59E52] transition-all duration-500"
+          className="h-full bg-linear-to-r from-[#E37A33] to-[#F59E52] transition-all duration-500"
           style={{ width: `${((step - 1) / 4) * 100}%` }}
         />
       </div>
@@ -69,8 +69,8 @@ function Stepper({ step }) {
         return (
           <div key={label} className="relative flex flex-col items-center gap-1.5 z-10">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-              done ? 'bg-gradient-to-br from-[#E37A33] to-[#F59E52] text-white' :
-              active ? 'bg-gradient-to-br from-[#E37A33] to-[#F59E52] text-white scale-110 ring-4 ring-[#E37A33]/20' :
+              done ? 'bg-linear-to-br from-[#E37A33] to-[#F59E52] text-white' :
+              active ? 'bg-linear-to-br from-[#E37A33] to-[#F59E52] text-white scale-110 ring-4 ring-[#E37A33]/20' :
               'border-2 border-zinc-200 dark:border-[#303440] bg-white dark:bg-[#1A1D24] text-zinc-400'
             }`}>
               {done ? (
@@ -406,7 +406,7 @@ function PedidoForm({ pedidoId, onClose }) {
               >
                 <option value="">— Selecciona un empleado —</option>
                 {empleados.map(e => (
-                  <option key={e.id} value={e.id}>{e.nombre} - {e.cargo || e.rol || ''}</option>
+                  <option key={e.id} value={e.id}>{e.nombre} - {e.cargo || ''}</option>
                 ))}
               </select>
             </div>
@@ -483,7 +483,7 @@ function PedidoForm({ pedidoId, onClose }) {
                     )
                   })}
                 </div>
-                <div className="px-4 py-3 border-t border-zinc-200 dark:border-[#303440] bg-gradient-to-r from-[#E37A33]/10 to-[#F59E52]/10 rounded-b-2xl">
+                <div className="px-4 py-3 border-t border-zinc-200 dark:border-[#303440] bg-linear-to-r from-[#E37A33]/10 to-[#F59E52]/10 rounded-b-2xl">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Total</span>
                     <span className="font-bold text-[#E37A33]">{fmt(montoTotal)}</span>

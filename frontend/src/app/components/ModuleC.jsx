@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react'
 import { useStore } from '../../store.js'
-import { Search, Edit2, Trash2, ArrowLeft, Plus, Users } from 'lucide-react'
+import { Search, Edit2, Trash2, Plus, Users, X } from 'lucide-react'
 
 const PAGE_SIZE = 8
+
+const inputCls = "w-full bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white placeholder:text-zinc-400"
 
 function ConfirmModal({ onCancel, onConfirm }) {
   return (
@@ -17,12 +19,8 @@ function ConfirmModal({ onCancel, onConfirm }) {
             <p className="text-sm text-zinc-500 dark:text-[#8D96A5] mt-1">Esta acción no se puede deshacer.</p>
           </div>
           <div className="flex gap-3 w-full">
-            <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-zinc-200 dark:border-[#303440] rounded-xl text-sm font-medium hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">
-              Cancelar
-            </button>
-            <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors">
-              Eliminar
-            </button>
+            <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-zinc-200 dark:border-[#303440] rounded-xl text-sm font-medium hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Cancelar</button>
+            <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors">Eliminar</button>
           </div>
         </div>
       </div>
@@ -30,6 +28,7 @@ function ConfirmModal({ onCancel, onConfirm }) {
   )
 }
 
+// Exportado para uso embebido en el flujo de Pedidos (Step 1)
 export function ClienteForm({ clienteId, onClose, onSaveSuccess }) {
   const { clientes, addCliente, updateCliente } = useStore()
   const existing = clienteId != null ? clientes.find(c => c.id === clienteId) : null
@@ -47,59 +46,76 @@ export function ClienteForm({ clienteId, onClose, onSaveSuccess }) {
     e.preventDefault()
     if (existing) {
       updateCliente(existing.id, form)
-      if (onSaveSuccess) onSaveSuccess(existing.id)
-      else onClose()
+      onSaveSuccess ? onSaveSuccess(existing.id) : onClose()
     } else {
       const id = addCliente(form)
-      if (onSaveSuccess) onSaveSuccess(id)
-      else onClose()
+      onSaveSuccess ? onSaveSuccess(id) : onClose()
     }
   }
 
-  const inputCls = "w-full bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
-
   return (
-    <div>
-      <form onSubmit={handleSave} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium block mb-1.5">Nombre *</label>
-            <input required value={form.nombre} onChange={e => setField('nombre', e.target.value)} className={inputCls} />
-          </div>
-          <div>
-            <label className="text-sm font-medium block mb-1.5">Apellido *</label>
-            <input required value={form.apellido} onChange={e => setField('apellido', e.target.value)} className={inputCls} />
-          </div>
-          <div>
-            <label className="text-sm font-medium block mb-1.5">Teléfono *</label>
-            <input required value={form.telefono} onChange={e => setField('telefono', e.target.value)} className={inputCls} />
-          </div>
-          <div>
-            <label className="text-sm font-medium block mb-1.5">Email</label>
-            <input type="email" value={form.email} onChange={e => setField('email', e.target.value)} className={inputCls} />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-sm font-medium block mb-1.5">Dirección</label>
-            <input value={form.direccion} onChange={e => setField('direccion', e.target.value)} className={inputCls} />
-          </div>
+    <form onSubmit={handleSave} className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium block mb-1.5">Nombre *</label>
+          <input required value={form.nombre} onChange={e => setField('nombre', e.target.value)} placeholder="Ej: Juan" className={inputCls} />
         </div>
-        <div className="flex gap-3 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2.5 border border-zinc-200 dark:border-[#303440] rounded-xl text-sm font-medium hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">
-            Cancelar
-          </button>
-          <button type="submit" className="px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-lg text-sm font-medium transition-colors">
-            Guardar
+        <div>
+          <label className="text-sm font-medium block mb-1.5">Apellido</label>
+          <input value={form.apellido} onChange={e => setField('apellido', e.target.value)} placeholder="Ej: Pérez" className={inputCls} />
+        </div>
+        <div>
+          <label className="text-sm font-medium block mb-1.5">Teléfono *</label>
+          <input required value={form.telefono} onChange={e => setField('telefono', e.target.value)} placeholder="Ej: 555-1234" className={inputCls} />
+        </div>
+        <div>
+          <label className="text-sm font-medium block mb-1.5">Email</label>
+          <input type="email" value={form.email} onChange={e => setField('email', e.target.value)} placeholder="Ej: juan@ejemplo.com" className={inputCls} />
+        </div>
+        <div className="sm:col-span-2">
+          <label className="text-sm font-medium block mb-1.5">Dirección</label>
+          <textarea
+            value={form.direccion}
+            onChange={e => setField('direccion', e.target.value)}
+            placeholder="Ej: Calle Principal 123"
+            rows={2}
+            className={`${inputCls} resize-none`}
+          />
+        </div>
+      </div>
+      <div className="flex justify-end gap-3 pt-2 border-t border-zinc-200 dark:border-[#303440]">
+        <button type="button" onClick={onClose} className="px-5 py-2.5 text-sm font-medium text-zinc-600 dark:text-[#8D96A5] hover:text-zinc-900 dark:hover:text-white transition-colors">
+          Cancelar
+        </button>
+        <button type="submit" className="px-5 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-semibold transition-colors">
+          Guardar Cliente
+        </button>
+      </div>
+    </form>
+  )
+}
+
+function ClienteModal({ clienteId, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl shadow-xl w-full max-w-lg">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-[#303440]">
+          <h2 className="font-semibold text-base">{clienteId ? 'Editar cliente' : 'Nuevo cliente'}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-400 hover:text-zinc-600">
+            <X size={18} />
           </button>
         </div>
-      </form>
+        <div className="px-6 py-5">
+          <ClienteForm clienteId={clienteId} onClose={onClose} />
+        </div>
+      </div>
     </div>
   )
 }
 
 export default function ModuleC() {
   const { clientes, deleteCliente } = useStore()
-  const [view, setView] = useState('list')
-  const [editId, setEditId] = useState(null)
+  const [modal, setModal] = useState(null)
   const [deleteId, setDeleteId] = useState(null)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -116,20 +132,6 @@ export default function ModuleC() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  if (view === 'form') {
-    return (
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <button onClick={() => setView('list')} className="flex items-center gap-2 text-sm text-zinc-500 dark:text-[#8D96A5] hover:text-zinc-800 dark:hover:text-white mb-6 transition-colors">
-          <ArrowLeft size={16} /> Volver a clientes
-        </button>
-        <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6">
-          <h2 className="font-semibold text-lg mb-6">{editId ? 'Editar cliente' : 'Crear cliente'}</h2>
-          <ClienteForm clienteId={editId} onClose={() => setView('list')} />
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {deleteId != null && (
@@ -138,13 +140,19 @@ export default function ModuleC() {
           onConfirm={() => { deleteCliente(deleteId); setDeleteId(null) }}
         />
       )}
+      {modal !== null && (
+        <ClienteModal
+          clienteId={modal === 'new' ? null : modal}
+          onClose={() => setModal(null)}
+        />
+      )}
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold">Clientes</h1>
           <p className="text-sm text-zinc-500 dark:text-[#8D96A5]">Directorio y gestión de contactos</p>
         </div>
-        <button onClick={() => { setEditId(null); setView('form') }} className="flex items-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-lg text-sm font-medium transition-colors">
+        <button onClick={() => setModal('new')} className="flex items-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors">
           <Plus size={16} /> Crear Cliente
         </button>
       </div>
@@ -155,7 +163,7 @@ export default function ModuleC() {
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1) }}
           placeholder="Buscar por nombre, apellido o teléfono..."
-          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-lg outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
+          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
         />
       </div>
 
@@ -183,10 +191,10 @@ export default function ModuleC() {
                   <td className="px-6 py-4 font-medium">{c.nombre} {c.apellido}</td>
                   <td className="px-6 py-4">{c.telefono}</td>
                   <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{c.email || '—'}</td>
-                  <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5] max-w-[200px] truncate">{c.direccion || '—'}</td>
+                  <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5] max-w-50 truncate">{c.direccion || '—'}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => { setEditId(c.id); setView('form') }} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white">
+                      <button onClick={() => setModal(c.id)} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white">
                         <Edit2 size={15} />
                       </button>
                       <button onClick={() => setDeleteId(c.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500">
