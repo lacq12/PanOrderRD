@@ -1,6 +1,45 @@
 import { useState } from 'react'
 import { useStore } from '../../store.js'
 import { Edit2, Trash2, Plus, Key, Users, X } from 'lucide-react'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+import { useLoading, skeletonTheme } from '../../hooks/useLoading.js'
+
+function ConfigSkeleton() {
+  const { baseColor, highlightColor } = skeletonTheme()
+  return (
+    <SkeletonTheme baseColor={baseColor} highlightColor={highlightColor}>
+      <div className="space-y-6">
+        <div><Skeleton width={140} height={22} borderRadius={8} /><Skeleton width={200} height={14} borderRadius={6} className="mt-1" /></div>
+        <div className="flex gap-6 border-b border-zinc-200 dark:border-[#303440] pb-3">
+          <Skeleton width={80} height={20} borderRadius={6} />
+          <Skeleton width={90} height={20} borderRadius={6} />
+        </div>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <Skeleton width={160} height={18} borderRadius={6} />
+            <Skeleton width={130} height={38} borderRadius={12} />
+          </div>
+          <div className="border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden">
+            <div className="px-6 py-3 bg-zinc-50 dark:bg-[#242730] flex gap-6">
+              {[100, 80, 70].map((w, i) => <Skeleton key={i} width={w} height={12} borderRadius={4} />)}
+            </div>
+            <div className="divide-y divide-zinc-100 dark:divide-[#303440]/50">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="px-6 py-4 flex gap-6 items-center">
+                  <Skeleton circle width={32} height={32} />
+                  <Skeleton width={160} height={14} borderRadius={6} />
+                  <Skeleton width={70} height={22} borderRadius={20} />
+                  <Skeleton width={60} height={28} borderRadius={8} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </SkeletonTheme>
+  )
+}
 
 const ROLES_USUARIO = ['Admin', 'Gerente', 'Vendedor']
 
@@ -176,6 +215,9 @@ export default function ModuleConfig() {
   const [usuarioModal, setUsuarioModal] = useState(null)
   const [empleadoModal, setEmpleadoModal] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const loading = useLoading()
+
+  if (loading) return <ConfigSkeleton />
 
   const handleDelete = () => {
     if (!deleteTarget) return

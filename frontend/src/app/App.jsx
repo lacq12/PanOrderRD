@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import {
-  Wheat, Sun, Moon, Eye, EyeOff, ArrowLeft,
+  Sun, Moon, Eye, EyeOff, ArrowLeft,
   LayoutDashboard, Package, Users, ShoppingCart,
   Settings, LogOut, ChevronLeft, ChevronRight, Bell, Menu
 } from 'lucide-react'
@@ -30,6 +30,8 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [logoutConfirm, setLogoutConfirm] = useState(false)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark)
@@ -43,9 +45,13 @@ export default function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (view === 'login') setView('dashboard')
-    else if (view === 'forgot-password') setView('reset-password')
-    else if (view === 'reset-password') setView('login')
+    setSubmitting(true)
+    setTimeout(() => {
+      setSubmitting(false)
+      if (view === 'login') setView('dashboard')
+      else if (view === 'forgot-password') setView('reset-password')
+      else if (view === 'reset-password') setView('login')
+    }, 1000)
   }
 
   const renderContent = () => {
@@ -87,11 +93,13 @@ export default function App() {
             </button>
 
             {/* Logo */}
-            <div className={`flex items-center gap-3 px-5 py-5 border-b border-zinc-200/60 dark:border-white/5 ${sidebarCollapsed ? 'justify-center px-0' : ''}`}>
-              <div className="w-8 h-8 rounded-xl bg-[#E37A33] flex items-center justify-center shrink-0">
-                <Wheat size={16} className="text-white" />
-              </div>
-              {!sidebarCollapsed && <span className="font-bold text-sm truncate">Hermanos Paca</span>}
+            <div className={`flex items-center gap-2 px-4 py-4 border-b border-zinc-200/60 dark:border-white/5 ${sidebarCollapsed ? 'justify-center px-0' : ''}`}>
+              <img src="/logo-hermanos-paca.png" alt="Hermanos Paca" className="w-14 h-14 object-contain shrink-0" />
+              {!sidebarCollapsed && (
+                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '21.599px', fontWeight: 700, letterSpacing: '-1.566px', lineHeight: 'normal' }} className="text-[#311200] dark:text-white truncate">
+                  Hermanos Paca
+                </span>
+              )}
             </div>
 
             {/* Nav */}
@@ -138,7 +146,7 @@ export default function App() {
               </button>
               <button
                 title="Cerrar sesión"
-                onClick={() => setView('login')}
+                onClick={() => setLogoutConfirm(true)}
                 className={`
                   w-full flex items-center gap-3 rounded-xl transition-all text-sm font-medium
                   text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10
@@ -150,6 +158,36 @@ export default function App() {
               </button>
             </div>
           </aside>
+
+          {logoutConfirm && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-sm w-full shadow-xl">
+                <div className="flex flex-col items-center text-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500">
+                    <LogOut size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">¿Cerrar sesión?</h3>
+                    <p className="text-sm text-zinc-500 dark:text-[#8D96A5] mt-1">Se cerrará tu sesión actual.</p>
+                  </div>
+                  <div className="flex gap-3 w-full">
+                    <button
+                      onClick={() => setLogoutConfirm(false)}
+                      className="flex-1 px-4 py-2.5 border border-zinc-200 dark:border-[#303440] rounded-xl text-sm font-medium hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={() => { setLogoutConfirm(false); setView('login') }}
+                      className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors"
+                    >
+                      Cerrar sesión
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Columna de contenido */}
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -203,13 +241,13 @@ export default function App() {
   const inputLogin = "w-full px-6 py-4 rounded-full border border-zinc-200 dark:border-[#303440] bg-white dark:bg-[#1A1D24]/50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-[#E37A33] focus:border-[#E37A33] transition-all text-base text-zinc-900 dark:text-white"
 
   return (
-    <div className="min-h-[100dvh] w-full flex items-center justify-center p-0 md:p-4 lg:p-5 bg-zinc-200 dark:bg-[#0C0E12] transition-colors duration-500 overflow-hidden text-zinc-900 dark:text-white">
+    <div className="min-h-dvh w-full flex items-center justify-center p-0 md:p-4 lg:p-5 bg-zinc-200 dark:bg-[#0C0E12] transition-colors duration-500 overflow-hidden text-zinc-900 dark:text-white">
 
       {/* Contenedor principal */}
-      <div className="relative w-full max-w-[1800px] h-[100dvh] md:h-[calc(100vh-2rem)] lg:h-[calc(100vh-2.5rem)] md:min-h-[600px] bg-transparent md:bg-white md:dark:bg-[#1A1D24] rounded-none md:rounded-[1.5rem] lg:rounded-[2rem] dark:md:border dark:md:border-zinc-800 flex flex-col lg:flex-row p-0 md:p-2 lg:p-3 lg:gap-3 overflow-hidden transition-colors duration-500">
+      <div className="relative w-full max-w-450 h-dvh md:h-[calc(100vh-2rem)] lg:h-[calc(100vh-2.5rem)] md:min-h-150 bg-transparent md:bg-white md:dark:bg-[#1A1D24] rounded-none md:rounded-3xl lg:rounded-4xl dark:md:border dark:md:border-zinc-800 flex flex-col lg:flex-row p-0 md:p-2 lg:p-3 lg:gap-3 overflow-hidden transition-colors duration-500">
 
         {/* ── Panel imagen ── */}
-        <div className="relative w-full lg:w-[50%] h-[35vh] sm:h-[40vh] md:h-[45vh] lg:h-full rounded-none md:rounded-[1.25rem] lg:rounded-[1.5rem] overflow-hidden shrink-0 flex flex-col justify-end p-6 lg:p-0">
+        <div className="relative w-full lg:w-[50%] h-[35vh] sm:h-[40vh] md:h-[45vh] lg:h-full rounded-none md:rounded-2xl lg:rounded-3xl overflow-hidden shrink-0 flex flex-col justify-end p-6 lg:p-0">
 
           {/* Toggle mobile */}
           <button
@@ -226,9 +264,9 @@ export default function App() {
               alt="Panadería"
               className="absolute inset-0 w-full h-full object-cover"
             />
-            <div className="absolute top-8 left-0 right-0 z-20 flex justify-center">
-              <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl text-white border border-white/20">
-                <Wheat size={40} className="stroke-[1.5]" />
+            <div className="absolute top-8 left-8 z-20">
+              <div className="flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 rounded-xl w-20 h-20">
+                <img src="/logo-hermanos-paca.png" alt="Hermanos Paca" style={{ width: '100px', height: '100px' }} className="object-contain" />
               </div>
             </div>
             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent z-10" />
@@ -252,7 +290,7 @@ export default function App() {
         </div>
 
         {/* ── Panel formulario ── */}
-        <div className="flex-1 w-full bg-white dark:bg-[#1A1D24] lg:bg-transparent rounded-t-[2rem] md:rounded-[1.25rem] lg:rounded-none -mt-4 lg:mt-0 relative z-20 p-6 pt-10 sm:p-8 md:px-16 lg:px-16 xl:px-24 flex flex-col lg:justify-center overflow-y-auto transition-colors duration-500">
+        <div className="flex-1 w-full bg-white dark:bg-[#1A1D24] lg:bg-transparent rounded-t-4xl md:rounded-2xl lg:rounded-none -mt-4 lg:mt-0 relative z-20 p-6 pt-10 sm:p-8 md:px-16 lg:px-16 xl:px-24 flex flex-col lg:justify-center overflow-y-auto transition-colors duration-500">
 
           {/* Toggle desktop */}
           <button
@@ -262,7 +300,7 @@ export default function App() {
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
 
-          <div className="w-full max-w-[520px] mx-auto">
+          <div className="w-full max-w-130 mx-auto">
 
             {/* Botón volver */}
             <button
@@ -273,12 +311,12 @@ export default function App() {
             </button>
 
             {/* Título desktop */}
-            <div className="hidden lg:block mb-10">
-              <h1 className="text-5xl lg:text-[3.5rem] font-semibold tracking-tight leading-none mb-4 text-zinc-900 dark:text-white">{title}</h1>
+            <div className="hidden lg:flex lg:flex-col gap-1 mb-10">
+              <h1 style={{ fontSize: '56px', fontWeight: 700, lineHeight: '56px', letterSpacing: '-3.4px', color: '#18181B', fontFamily: 'Inter, sans-serif' }} className="dark:text-white">{title}</h1>
               <p className="text-base text-zinc-500 dark:text-[#8D96A5]">{sub}</p>
             </div>
 
-            <div className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email */}
               <div className="space-y-2.5">
                 <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Correo electrónico</label>
@@ -349,13 +387,23 @@ export default function App() {
               {/* CTA */}
               <div className="pt-2">
                 <button
-                  onClick={handleSubmit}
-                  className="w-full bg-[#E37A33] hover:bg-[#CC6824] text-white py-4 rounded-full font-medium text-base transition-colors"
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full bg-[#E37A33] hover:bg-[#CC6824] disabled:opacity-80 text-white py-4 rounded-full font-medium text-base transition-colors flex items-center justify-center gap-2"
                 >
-                  {view === 'login' ? 'Iniciar sesión' : view === 'forgot-password' ? 'Enviar código' : 'Restablecer contraseña'}
+                  {submitting && (
+                    <svg className="animate-spin w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                  )}
+                  {submitting
+                    ? 'Cargando...'
+                    : view === 'login' ? 'Iniciar sesión' : view === 'forgot-password' ? 'Enviar código' : 'Restablecer contraseña'
+                  }
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

@@ -1,6 +1,36 @@
 import { useState, useMemo } from 'react'
 import { useStore } from '../../store.js'
 import { Search, Edit2, Trash2, Plus, X, Package } from 'lucide-react'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+import { useLoading, skeletonTheme } from '../../hooks/useLoading.js'
+
+function TableSkeleton({ cols }) {
+  const { baseColor, highlightColor } = skeletonTheme()
+  return (
+    <SkeletonTheme baseColor={baseColor} highlightColor={highlightColor}>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div><Skeleton width={120} height={22} borderRadius={8} /><Skeleton width={200} height={14} borderRadius={6} className="mt-1" /></div>
+          <Skeleton width={120} height={38} borderRadius={12} />
+        </div>
+        <Skeleton height={40} borderRadius={12} />
+        <div className="border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden">
+          <div className="px-6 py-3 bg-zinc-50 dark:bg-[#242730] flex gap-6">
+            {Array.from({ length: cols }).map((_, i) => <Skeleton key={i} width={80} height={12} borderRadius={4} />)}
+          </div>
+          <div className="divide-y divide-zinc-100 dark:divide-[#303440]/50">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="px-6 py-4 flex gap-6">
+                {Array.from({ length: cols }).map((_, j) => <Skeleton key={j} width={j === 0 ? 30 : 90} height={14} borderRadius={6} />)}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </SkeletonTheme>
+  )
+}
 
 const CATEGORIAS = ['Panes', 'Bollería', 'Pasteles', 'Bebidas', 'Embutidos', 'Otros']
 const UNIDADES = ['kg', 'g', 'L', 'ml', 'unidad']
@@ -101,7 +131,7 @@ function ProductoModal({ productoId, onClose }) {
             <div>
               <label className="text-sm font-medium block mb-1.5">Categoría</label>
               <select value={form.categoria} onChange={e => setField('categoria', e.target.value)} className={inputCls}>
-                {CATEGORIAS.map(c => <option key={c}>{c}</option>)}
+                <option value="">Sin categorías registradas</option>
               </select>
             </div>
 
@@ -119,14 +149,20 @@ function ProductoModal({ productoId, onClose }) {
 
             {/* Disponible */}
             <div className="flex items-center gap-2.5">
-              <input
-                id="disponible"
-                type="checkbox"
-                checked={form.disponible}
-                onChange={e => setField('disponible', e.target.checked)}
-                className="w-4 h-4 accent-[#E37A33]"
-              />
-              <label htmlFor="disponible" className="text-sm font-medium">Disponible para venta</label>
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={form.disponible}
+                onClick={() => setField('disponible', !form.disponible)}
+                className={`w-4 h-4 rounded flex items-center justify-center shrink-0 transition-colors ${form.disponible ? 'bg-[#E37A33]' : 'border border-zinc-300 dark:border-[#303440] bg-white dark:bg-[#1A1D24]'}`}
+              >
+                {form.disponible && (
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </button>
+              <span className="text-sm font-medium cursor-pointer" onClick={() => setField('disponible', !form.disponible)}>Disponible para venta</span>
             </div>
 
             {/* Ingredientes */}
@@ -161,14 +197,14 @@ function ProductoModal({ productoId, onClose }) {
                         placeholder="Cant."
                         value={ing.cantidad}
                         onChange={e => updateIngrediente(i, 'cantidad', e.target.value)}
-                        className={`${inputCls} w-24`}
+                        className={`${inputCls} w-24! shrink-0`}
                       />
                       <select
                         value={ing.unidad}
                         onChange={e => updateIngrediente(i, 'unidad', e.target.value)}
-                        className={`${inputCls} w-24`}
+                        className={`${inputCls} w-24! shrink-0`}
                       >
-                        {UNIDADES.map(u => <option key={u}>{u}</option>)}
+                        <option value="">—</option>
                       </select>
                       <button type="button" onClick={() => removeIngrediente(i)} className="p-2 text-zinc-400 hover:text-red-500 transition-colors shrink-0">
                         <X size={16} />
@@ -201,6 +237,7 @@ export default function ModuleB() {
   const [deleteId, setDeleteId] = useState(null)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const loading = useLoading()
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
@@ -210,6 +247,8 @@ export default function ModuleB() {
       p.descripcion?.toLowerCase().includes(q)
     )
   }, [productos, search])
+
+  if (loading) return <TableSkeleton cols={8} />
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)

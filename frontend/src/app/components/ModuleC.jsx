@@ -1,6 +1,36 @@
 import { useState, useMemo } from 'react'
 import { useStore } from '../../store.js'
 import { Search, Edit2, Trash2, Plus, Users, X } from 'lucide-react'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+import { useLoading, skeletonTheme } from '../../hooks/useLoading.js'
+
+function TableSkeleton({ cols }) {
+  const { baseColor, highlightColor } = skeletonTheme()
+  return (
+    <SkeletonTheme baseColor={baseColor} highlightColor={highlightColor}>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div><Skeleton width={100} height={22} borderRadius={8} /><Skeleton width={220} height={14} borderRadius={6} className="mt-1" /></div>
+          <Skeleton width={120} height={38} borderRadius={12} />
+        </div>
+        <Skeleton height={40} borderRadius={12} />
+        <div className="border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden">
+          <div className="px-6 py-3 bg-zinc-50 dark:bg-[#242730] flex gap-6">
+            {Array.from({ length: cols }).map((_, i) => <Skeleton key={i} width={80} height={12} borderRadius={4} />)}
+          </div>
+          <div className="divide-y divide-zinc-100 dark:divide-[#303440]/50">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="px-6 py-4 flex gap-6">
+                {Array.from({ length: cols }).map((_, j) => <Skeleton key={j} width={j === 0 ? 30 : 100} height={14} borderRadius={6} />)}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </SkeletonTheme>
+  )
+}
 
 const PAGE_SIZE = 8
 
@@ -119,6 +149,7 @@ export default function ModuleC() {
   const [deleteId, setDeleteId] = useState(null)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const loading = useLoading()
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
@@ -128,6 +159,8 @@ export default function ModuleC() {
       c.telefono?.toLowerCase().includes(q)
     )
   }, [clientes, search])
+
+  if (loading) return <TableSkeleton cols={6} />
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)

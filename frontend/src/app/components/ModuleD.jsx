@@ -5,6 +5,43 @@ import {
   Package, Check, AlertCircle, ChevronRight, Phone, Mail, Briefcase
 } from 'lucide-react'
 import { ClienteForm } from './ModuleC.jsx'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+import { useLoading, skeletonTheme } from '../../hooks/useLoading.js'
+
+function PedidosSkeleton() {
+  const { baseColor, highlightColor } = skeletonTheme()
+  return (
+    <SkeletonTheme baseColor={baseColor} highlightColor={highlightColor}>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div><Skeleton width={100} height={22} borderRadius={8} /><Skeleton width={240} height={14} borderRadius={6} className="mt-1" /></div>
+          <Skeleton width={130} height={38} borderRadius={12} />
+        </div>
+        <Skeleton height={40} borderRadius={12} />
+        <div className="border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden">
+          <div className="px-6 py-3 bg-zinc-50 dark:bg-[#242730] flex gap-4">
+            {[60, 90, 80, 70, 70, 100, 60, 70].map((w, i) => <Skeleton key={i} width={w} height={12} borderRadius={4} />)}
+          </div>
+          <div className="divide-y divide-zinc-100 dark:divide-[#303440]/50">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="px-6 py-4 flex gap-4 items-center">
+                <Skeleton width={50} height={14} borderRadius={6} />
+                <Skeleton width={110} height={14} borderRadius={6} />
+                <Skeleton width={90} height={14} borderRadius={6} />
+                <Skeleton width={80} height={14} borderRadius={6} />
+                <Skeleton width={80} height={14} borderRadius={6} />
+                <Skeleton width={80} height={22} borderRadius={20} />
+                <Skeleton width={70} height={14} borderRadius={6} />
+                <Skeleton width={60} height={28} borderRadius={8} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </SkeletonTheme>
+  )
+}
 
 const PAGE_SIZE = 8
 
@@ -442,10 +479,7 @@ function PedidoForm({ pedidoId, onClose }) {
                   onChange={e => setEmpleadoId(e.target.value)}
                   className={inputCls}
                 >
-                  <option value="">Selecciona un empleado...</option>
-                  {empleados.map(e => (
-                    <option key={e.id} value={e.id}>{e.nombre} - {e.cargo || ''}</option>
-                  ))}
+                  <option value="">Sin empleados registrados</option>
                 </select>
               </div>
             </div>
@@ -676,6 +710,7 @@ export default function ModuleD() {
   const [detailId, setDetailId] = useState(null)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const loading = useLoading()
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
@@ -685,6 +720,8 @@ export default function ModuleD() {
       return String(p.id).padStart(4, '0').includes(q) || nombre.includes(q) || p.estado_pedido?.toLowerCase().includes(q)
     })
   }, [pedidos, clientes, search])
+
+  if (loading && view === 'list') return <PedidosSkeleton />
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
