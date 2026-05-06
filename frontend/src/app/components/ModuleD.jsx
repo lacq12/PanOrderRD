@@ -749,7 +749,7 @@ export default function ModuleD() {
         </div>
         <button
           onClick={() => { setEditId(null); setView('form') }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors"
+          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors"
         >
           <Plus size={16} /> Nuevo Pedido
         </button>

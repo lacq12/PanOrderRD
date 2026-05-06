@@ -10,6 +10,8 @@ import ModuleC from './components/ModuleC.jsx'
 import ModuleD from './components/ModuleD.jsx'
 import ModuleConfig from './components/ModuleConfig.jsx'
 import NotificationsPanel from './components/NotificationsPanel.jsx'
+import { api } from '../api.js'
+import { useStore } from '../store.js'
 
 const sidebarLinks = [
   { icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
@@ -19,6 +21,7 @@ const sidebarLinks = [
 ]
 
 export default function App() {
+  const loadAll = useStore((s) => s.loadAll)
   const [view, setView] = useState('login')
   const [isDark, setIsDark] = useState(false)
   const [email, setEmail] = useState('')
@@ -31,6 +34,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [loginError, setLoginError] = useState('')
   const [logoutConfirm, setLogoutConfirm] = useState(false)
 
   useEffect(() => {
@@ -43,15 +47,26 @@ export default function App() {
     'reset-password':  { title: 'Restablecer',    sub: 'Tu nueva contraseña debe ser diferente.' },
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoginError('')
     setSubmitting(true)
-    setTimeout(() => {
+    try {
+      if (view === 'login') {
+        const { token } = await api.login(email, password)
+        localStorage.setItem('token', token)
+        await loadAll()
+        setView('dashboard')
+      } else if (view === 'forgot-password') {
+        setView('reset-password')
+      } else if (view === 'reset-password') {
+        setView('login')
+      }
+    } catch (err) {
+      setLoginError(err.message || 'Error al iniciar sesión')
+    } finally {
       setSubmitting(false)
-      if (view === 'login') setView('dashboard')
-      else if (view === 'forgot-password') setView('reset-password')
-      else if (view === 'reset-password') setView('login')
-    }, 1000)
+    }
   }
 
   const renderContent = () => {
@@ -178,7 +193,7 @@ export default function App() {
                       Cancelar
                     </button>
                     <button
-                      onClick={() => { setLogoutConfirm(false); setView('login') }}
+                      onClick={() => { localStorage.removeItem('token'); setLogoutConfirm(false); setView('login') }}
                       className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors"
                     >
                       Cerrar sesión
@@ -384,6 +399,11 @@ export default function App() {
                 </div>
               )}
 
+              {/* Error login */}
+              {loginError && (
+                <p className="text-sm text-red-500 text-center">{loginError}</p>
+              )}
+
               {/* CTA */}
               <div className="pt-2">
                 <button
@@ -409,4 +429,6 @@ export default function App() {
       </div>
     </div>
   )
+
+  
 }

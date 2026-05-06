@@ -273,7 +273,7 @@ export default function ModuleB() {
           <h1 className="text-xl font-bold">Productos</h1>
           <p className="text-sm text-zinc-500 dark:text-[#8D96A5]">Gestión de catálogo e ingredientes</p>
         </div>
-        <button onClick={() => setModal('new')} className="flex items-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors">
+        <button onClick={() => setModal('new')} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors">
           <Plus size={16} /> Crear Producto
         </button>
       </div>
