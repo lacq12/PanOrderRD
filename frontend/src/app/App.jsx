@@ -109,7 +109,7 @@ export default function App() {
 
             {/* Logo */}
             <div className={`flex items-center gap-2 px-4 py-4 border-b border-zinc-200/60 dark:border-white/5 ${sidebarCollapsed ? 'justify-center px-0' : ''}`}>
-              <img src="/logo-hermanos-paca.png" alt="Hermanos Paca" className="w-14 h-14 object-contain shrink-0" />
+              <img src={`${import.meta.env.BASE_URL}logo-hermanos-paca.png`} alt="Hermanos Paca" className="w-14 h-14 object-contain shrink-0" />
               {!sidebarCollapsed && (
                 <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '21.599px', fontWeight: 700, letterSpacing: '-1.566px', lineHeight: 'normal' }} className="text-[#311200] dark:text-white truncate">
                   Hermanos Paca
@@ -281,7 +281,7 @@ export default function App() {
             />
             <div className="absolute top-8 left-8 z-20">
               <div className="flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 rounded-xl w-20 h-20">
-                <img src="/logo-hermanos-paca.png" alt="Hermanos Paca" style={{ width: '100px', height: '100px' }} className="object-contain" />
+                <img src={`${import.meta.env.BASE_URL}logo-hermanos-paca.png`} alt="Hermanos Paca" style={{ width: '100px', height: '100px' }} className="object-contain" />
               </div>
             </div>
             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent z-10" />
