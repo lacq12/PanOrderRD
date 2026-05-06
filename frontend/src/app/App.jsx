@@ -327,7 +327,7 @@ export default function App() {
 
             {/* Título desktop */}
             <div className="hidden lg:flex lg:flex-col gap-1 mb-10">
-              <h1 style={{ fontSize: '56px', fontWeight: 700, lineHeight: '56px', letterSpacing: '-3.4px', color: '#18181B', fontFamily: 'Inter, sans-serif' }} className="dark:text-white">{title}</h1>
+              <h1 style={{ fontSize: '56px', fontWeight: 700, lineHeight: '56px', letterSpacing: '-3.4px', fontFamily: 'Inter, sans-serif' }} className="text-[#18181B] dark:text-white">{title}</h1>
               <p className="text-base text-zinc-500 dark:text-[#8D96A5]">{sub}</p>
             </div>
 
