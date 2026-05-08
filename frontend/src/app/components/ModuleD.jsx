@@ -479,7 +479,12 @@ function PedidoForm({ pedidoId, onClose }) {
                   onChange={e => setEmpleadoId(e.target.value)}
                   className={inputCls}
                 >
-                  <option value="">Sin empleados registrados</option>
+                  <option value="">— Seleccionar empleado —</option>
+                  {empleados.map(e => (
+                    <option key={e.id} value={e.id}>
+                      {e.nombre} {e.apellido}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
