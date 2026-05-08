@@ -18,6 +18,13 @@ function fmt(n) {
   return new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(n ?? 0)
 }
 
+function formatDate(value) {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return date.toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
 function DashboardSkeleton({ isDark }) {
   const base  = isDark ? '#2a2d35' : '#e4e4e7'
   const high  = isDark ? '#383c47' : '#f4f4f5'
@@ -158,7 +165,7 @@ export default function ModuleA() {
               ) : pedidos.slice().reverse().slice(0, 10).map(p => (
                 <tr key={p.id} className="hover:bg-zinc-50/50 dark:hover:bg-[#242730]/30 transition-colors">
                   <td className="px-6 py-4 font-mono text-xs text-zinc-500">#{String(p.id).padStart(4, '0')}</td>
-                  <td className="px-6 py-4">{p.fecha_entrega || '—'}</td>
+                  <td className="px-6 py-4">{formatDate(p.fecha_entrega)}</td>
                   <td className="px-6 py-4 font-medium">{fmt(p.monto_total)}</td>
                   <td className="px-6 py-4">{fmt(p.anticipo_pagado)}</td>
                   <td className="px-6 py-4">
