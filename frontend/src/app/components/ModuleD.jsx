@@ -49,6 +49,13 @@ function fmt(n) {
   return `$${Number(n || 0).toFixed(2)}`
 }
 
+function formatDate(value) {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return date.toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
 function initials(c) {
   if (!c) return '?'
   return `${c.nombre?.[0] || ''}${c.apellido?.[0] || ''}`.toUpperCase()
@@ -840,8 +847,8 @@ export default function ModuleD() {
                     <td className="px-6 py-4 font-mono text-xs text-zinc-500">#{String(p.id).padStart(4, '0')}</td>
                     <td className="px-6 py-4 font-medium">{cliente ? `${cliente.nombre} ${cliente.apellido}` : '—'}</td>
                     <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{empleado?.nombre || '—'}</td>
-                    <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{p.fecha_registro || '—'}</td>
-                    <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{p.fecha_entrega || '—'}</td>
+                    <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{formatDate(p.fecha_registro)}</td>
+                    <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{formatDate(p.fecha_entrega)}</td>
                     <td className="px-6 py-4">
                       <div className="flex gap-1 flex-wrap">
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${pedidoBadge[p.estado_pedido] || ''}`}>Ped. {p.estado_pedido}</span>
