@@ -266,6 +266,7 @@ function PedidoForm({ pedidoId, onClose }) {
 
   const [step, setStep] = useState(1)
   const [error, setError] = useState('')
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [clienteId, setClienteId] = useState(existing?.cliente_id || null)
   const [empleadoId, setEmpleadoId] = useState(existing?.empleado_id || '')
   const [carrito, setCarrito] = useState(
@@ -347,7 +348,7 @@ function PedidoForm({ pedidoId, onClose }) {
     }
     if (existing) updatePedido(existing.id, payload)
     else addPedido(payload)
-    onClose()
+    setShowConfirmModal(true)
   }
 
   const inputCls = "w-full bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl px-4 py-2.5 text-sm outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
@@ -702,6 +703,49 @@ function PedidoForm({ pedidoId, onClose }) {
         </div>
 
       </div>{/* end card */}
+
+      {/* Modal de pedido guardado */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl w-full max-w-sm mx-4 shadow-2xl text-center">
+            <div className="px-6 pt-8 pb-4 flex flex-col items-center gap-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl" />
+                <div className="relative w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center">
+                  <Check size={30} className="text-white" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white">¡Pedido guardado!</h3>
+                <p className="text-sm text-zinc-400 dark:text-[#8D96A5] mt-1">
+                  El pedido de <span className="font-medium text-zinc-700 dark:text-zinc-300">{clienteSel ? `${clienteSel.nombre} ${clienteSel.apellido}` : '—'}</span> fue registrado exitosamente.
+                </p>
+              </div>
+              <div className="w-full flex divide-x divide-zinc-200 dark:divide-[#303440] border border-zinc-200 dark:border-[#303440] rounded-xl overflow-hidden text-sm">
+                {[
+                  { label: 'Total',    value: fmt(montoTotal) },
+                  { label: 'Anticipo', value: fmt(parseFloat(anticipo) || 0) },
+                  { label: 'Saldo',    value: fmt(Math.max(0, montoTotal - anticipo)) },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex-1 py-3 px-2">
+                    <p className="text-xs text-zinc-500 dark:text-[#8D96A5] mb-0.5">{label}</p>
+                    <p className="font-bold dark:text-white">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="px-6 pb-6">
+              <button
+                onClick={onClose}
+                className="w-full py-2.5 text-sm bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition-colors"
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
