@@ -567,7 +567,7 @@ function PedidoForm({ pedidoId, onClose }) {
 
           {/* Step 3 — Fecha */}
           {step === 3 && (
-            <div className="space-y-4 max-w-lg">
+            <div className="space-y-4 w-full">
               <div>
                 <label className="text-sm font-medium block mb-1.5">Fecha de entrega *</label>
                 <input
@@ -653,7 +653,7 @@ function PedidoForm({ pedidoId, onClose }) {
 
           {/* Step 5 — Confirmación */}
           {step === 5 && (
-            <div className="flex flex-col items-center text-center gap-6 py-4">
+            <div className="flex flex-col items-center justify-center text-center gap-6 py-8 h-full min-h-80">
               <div className="relative">
                 <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl" />
                 <div className="relative w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center">
