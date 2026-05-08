@@ -12,6 +12,7 @@ import ModuleConfig from './components/ModuleConfig.jsx'
 import NotificationsPanel from './components/NotificationsPanel.jsx'
 import { api } from '../api.js'
 import { useStore } from '../store.js'
+import { useMemo } from 'react'
 
 const sidebarLinks = [
   { icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
@@ -21,7 +22,20 @@ const sidebarLinks = [
 ]
 
 export default function App() {
-  const loadAll = useStore((s) => s.loadAll)
+  const loadAll   = useStore((s) => s.loadAll)
+  const pedidos   = useStore((s) => s.pedidos)
+  const productos = useStore((s) => s.productos)
+
+  const hasNotifs = useMemo(() => {
+    const now = new Date()
+    const in2Days = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000)
+    const activos = pedidos.filter(p => p.estado_pedido !== 'Cancelado' && p.estado_pedido !== 'Entregado')
+    return (
+      activos.some(p => p.estado_pago === 'Pendiente') ||
+      activos.some(p => { const d = new Date(p.fecha_entrega); return d >= now && d <= in2Days }) ||
+      productos.some(p => p.disponible && Number(p.stock_actual) === 0)
+    )
+  }, [pedidos, productos])
   const [view, setView] = useState('login')
   const [isDark, setIsDark] = useState(false)
   const [email, setEmail] = useState('')
@@ -240,7 +254,9 @@ export default function App() {
                       className="p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors text-zinc-500 dark:text-zinc-400 relative"
                     >
                       <Bell size={16} />
-                      <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#E37A33] rounded-full" />
+                      {hasNotifs && (
+                        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#E37A33] rounded-full" />
+                      )}
                     </button>
                     <NotificationsPanel isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
                   </div>
