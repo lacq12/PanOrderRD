@@ -277,9 +277,15 @@ function PedidoForm({ pedidoId, onClose }) {
   const [clienteId, setClienteId] = useState(existing?.cliente_id || null)
   const [empleadoId, setEmpleadoId] = useState(existing?.empleado_id || '')
   const [carrito, setCarrito] = useState(
-    existing?.items?.map(i => ({ producto_id: i.producto_id, cantidad: i.cantidad, precio_unitario: i.precio_unitario })) || []
+    existing?.items?.map(i => ({
+      producto_id: i.producto_id,
+      cantidad: i.cantidad,
+      precio_unitario: i.precio_unitario ?? (i.subtotal / i.cantidad),
+    })) || []
   )
-  const [fechaEntrega, setFechaEntrega] = useState(existing?.fecha_entrega || '')
+  const [fechaEntrega, setFechaEntrega] = useState(
+    existing?.fecha_entrega ? existing.fecha_entrega.split('T')[0] : ''
+  )
   const [notas, setNotas] = useState(existing?.notas || '')
   const [anticipo, setAnticipo] = useState(existing?.anticipo_pagado ?? 0)
   const [clienteSearch, setClienteSearch] = useState('')
