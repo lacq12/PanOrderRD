@@ -78,7 +78,7 @@ app.post('/api/productos', auth, async (req, res) => {
   const { nombre, descripcion, precio, stock, categoria, disponible } = req.body;
   const { rows } = await pool.query(
     'INSERT INTO productos (nombre, descripcion, precio, stock, categoria, disponible) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-    [nombre, descripcion, precio, stock ?? 0, categoria, disponible ?? 1]
+    [nombre, descripcion, precio, stock ?? 0, categoria, disponible ? 1 : 0]
   );
   res.status(201).json(rows[0]);
 });
@@ -87,7 +87,7 @@ app.put('/api/productos/:id', auth, async (req, res) => {
   const { nombre, descripcion, precio, stock, categoria, disponible } = req.body;
   const { rows } = await pool.query(
     'UPDATE productos SET nombre=$1, descripcion=$2, precio=$3, stock=$4, categoria=$5, disponible=$6 WHERE id=$7 RETURNING *',
-    [nombre, descripcion, precio, stock, categoria, disponible, req.params.id]
+    [nombre, descripcion, precio, stock, categoria, disponible ? 1 : 0, req.params.id]
   );
   res.json(rows[0]);
 });
