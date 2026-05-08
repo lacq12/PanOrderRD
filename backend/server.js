@@ -6,7 +6,6 @@ const pool    = require('./db');
 require('dotenv').config();
 
 const app = express();
-//app.use(cors());
 app.use(cors({
   origin: 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -34,8 +33,8 @@ app.post('/api/login', async (req, res) => {
   if (!email || !password) return res.status(400).json({ error: 'Datos incompletos' });
 
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM usuarios WHERE email = ? AND estado = 1 LIMIT 1',
+    const { rows } = await pool.query(
+      'SELECT * FROM usuarios WHERE email = $1 AND estado = 1 LIMIT 1',
       [email]
     );
     if (!rows.length) return res.status(401).json({ error: 'Credenciales incorrectas' });
@@ -51,118 +50,111 @@ app.post('/api/login', async (req, res) => {
     );
     res.json({ token, user: { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol } });
   } catch (err) {
-     console.error("ERROR LOGIN:", err); // 👈 AGREGA ESTO
+    console.error("ERROR LOGIN:", err);
     res.status(500).json({ error: 'Error del servidor' });
   }
 });
 
 // ── Productos ────────────────────────────────────────────────────────────────
 app.get('/api/productos', auth, async (req, res) => {
-  const [rows] = await pool.query('SELECT * FROM productos ORDER BY id');
+  const { rows } = await pool.query('SELECT * FROM productos ORDER BY id');
   res.json(rows);
 });
 
 app.post('/api/productos', auth, async (req, res) => {
   const { nombre, descripcion, precio, stock, categoria, disponible } = req.body;
-  const [result] = await pool.query(
-    'INSERT INTO productos (nombre, descripcion, precio, stock, categoria, disponible) VALUES (?, ?, ?, ?, ?, ?)',
+  const { rows } = await pool.query(
+    'INSERT INTO productos (nombre, descripcion, precio, stock, categoria, disponible) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
     [nombre, descripcion, precio, stock ?? 0, categoria, disponible ?? 1]
   );
-  const [rows] = await pool.query('SELECT * FROM productos WHERE id = ?', [result.insertId]);
   res.status(201).json(rows[0]);
 });
 
 app.put('/api/productos/:id', auth, async (req, res) => {
   const { nombre, descripcion, precio, stock, categoria, disponible } = req.body;
-  await pool.query(
-    'UPDATE productos SET nombre=?, descripcion=?, precio=?, stock=?, categoria=?, disponible=? WHERE id=?',
+  const { rows } = await pool.query(
+    'UPDATE productos SET nombre=$1, descripcion=$2, precio=$3, stock=$4, categoria=$5, disponible=$6 WHERE id=$7 RETURNING *',
     [nombre, descripcion, precio, stock, categoria, disponible, req.params.id]
   );
-  const [rows] = await pool.query('SELECT * FROM productos WHERE id = ?', [req.params.id]);
   res.json(rows[0]);
 });
 
 app.delete('/api/productos/:id', auth, async (req, res) => {
-  await pool.query('DELETE FROM productos WHERE id = ?', [req.params.id]);
+  await pool.query('DELETE FROM productos WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
 });
 
 // ── Clientes ─────────────────────────────────────────────────────────────────
 app.get('/api/clientes', auth, async (req, res) => {
-  const [rows] = await pool.query('SELECT * FROM clientes ORDER BY id');
+  const { rows } = await pool.query('SELECT * FROM clientes ORDER BY id');
   res.json(rows);
 });
 
 app.post('/api/clientes', auth, async (req, res) => {
   const { nombre, apellido, telefono, direccion, email } = req.body;
-  const [result] = await pool.query(
-    'INSERT INTO clientes (nombre, apellido, telefono, direccion, email) VALUES (?, ?, ?, ?, ?)',
+  const { rows } = await pool.query(
+    'INSERT INTO clientes (nombre, apellido, telefono, direccion, email) VALUES ($1, $2, $3, $4, $5) RETURNING *',
     [nombre, apellido, telefono, direccion, email]
   );
-  const [rows] = await pool.query('SELECT * FROM clientes WHERE id = ?', [result.insertId]);
   res.status(201).json(rows[0]);
 });
 
 app.put('/api/clientes/:id', auth, async (req, res) => {
   const { nombre, apellido, telefono, direccion, email } = req.body;
-  await pool.query(
-    'UPDATE clientes SET nombre=?, apellido=?, telefono=?, direccion=?, email=? WHERE id=?',
+  const { rows } = await pool.query(
+    'UPDATE clientes SET nombre=$1, apellido=$2, telefono=$3, direccion=$4, email=$5 WHERE id=$6 RETURNING *',
     [nombre, apellido, telefono, direccion, email, req.params.id]
   );
-  const [rows] = await pool.query('SELECT * FROM clientes WHERE id = ?', [req.params.id]);
   res.json(rows[0]);
 });
 
 app.delete('/api/clientes/:id', auth, async (req, res) => {
-  await pool.query('DELETE FROM clientes WHERE id = ?', [req.params.id]);
+  await pool.query('DELETE FROM clientes WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
 });
 
 // ── Empleados ────────────────────────────────────────────────────────────────
 app.get('/api/empleados', auth, async (req, res) => {
-  const [rows] = await pool.query('SELECT * FROM empleados ORDER BY id');
+  const { rows } = await pool.query('SELECT * FROM empleados ORDER BY id');
   res.json(rows);
 });
 
 app.post('/api/empleados', auth, async (req, res) => {
   const { nombre, apellido, cargo, telefono, salario } = req.body;
-  const [result] = await pool.query(
-    'INSERT INTO empleados (nombre, apellido, cargo, telefono, salario) VALUES (?, ?, ?, ?, ?)',
+  const { rows } = await pool.query(
+    'INSERT INTO empleados (nombre, apellido, cargo, telefono, salario) VALUES ($1, $2, $3, $4, $5) RETURNING *',
     [nombre, apellido, cargo, telefono, salario]
   );
-  const [rows] = await pool.query('SELECT * FROM empleados WHERE id = ?', [result.insertId]);
   res.status(201).json(rows[0]);
 });
 
 app.put('/api/empleados/:id', auth, async (req, res) => {
   const { nombre, apellido, cargo, telefono, salario } = req.body;
-  await pool.query(
-    'UPDATE empleados SET nombre=?, apellido=?, cargo=?, telefono=?, salario=? WHERE id=?',
+  const { rows } = await pool.query(
+    'UPDATE empleados SET nombre=$1, apellido=$2, cargo=$3, telefono=$4, salario=$5 WHERE id=$6 RETURNING *',
     [nombre, apellido, cargo, telefono, salario, req.params.id]
   );
-  const [rows] = await pool.query('SELECT * FROM empleados WHERE id = ?', [req.params.id]);
   res.json(rows[0]);
 });
 
 app.delete('/api/empleados/:id', auth, async (req, res) => {
-  await pool.query('DELETE FROM empleados WHERE id = ?', [req.params.id]);
+  await pool.query('DELETE FROM empleados WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
 });
 
 // ── Pedidos ──────────────────────────────────────────────────────────────────
 app.get('/api/pedidos', auth, async (req, res) => {
-  const [rows] = await pool.query(`
+  const { rows } = await pool.query(`
     SELECT p.*, c.nombre AS cliente_nombre, c.apellido AS cliente_apellido,
            c.telefono AS cliente_telefono
     FROM pedidos p
     LEFT JOIN clientes c ON c.id = p.cliente_id
     ORDER BY p.id
   `);
-  // Attach detalle_pedido items
   const ids = rows.map(r => r.id);
   if (ids.length) {
-    const [detalles] = await pool.query(
-      'SELECT * FROM detalle_pedido WHERE pedido_id IN (?)',
+    const { rows: detalles } = await pool.query(
+      'SELECT * FROM detalle_pedido WHERE pedido_id = ANY($1)',
       [ids]
     );
     rows.forEach(p => {
@@ -176,89 +168,87 @@ app.get('/api/pedidos', auth, async (req, res) => {
 
 app.post('/api/pedidos', auth, async (req, res) => {
   const { cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago, items } = req.body;
-  const conn = await pool.getConnection();
+  const client = await pool.connect();
   try {
-    await conn.beginTransaction();
-    const [result] = await conn.query(
-      'INSERT INTO pedidos (cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago) VALUES (?, ?, ?, ?, ?, ?)',
+    await client.query('BEGIN');
+    const { rows } = await client.query(
+      'INSERT INTO pedidos (cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
       [cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado ?? 0, estado_pago ?? 'Pendiente']
     );
-    const pedidoId = result.insertId;
+    const pedido = rows[0];
     if (items && items.length) {
       for (const item of items) {
-        await conn.query(
-          'INSERT INTO detalle_pedido (pedido_id, producto_id, cantidad, subtotal) VALUES (?, ?, ?, ?)',
-          [pedidoId, item.producto_id, item.cantidad, item.subtotal ?? item.precio_unitario * item.cantidad]
+        await client.query(
+          'INSERT INTO detalle_pedido (pedido_id, producto_id, cantidad, subtotal) VALUES ($1, $2, $3, $4)',
+          [pedido.id, item.producto_id, item.cantidad, item.subtotal ?? item.precio_unitario * item.cantidad]
         );
-        await conn.query(
-          'UPDATE productos SET stock = GREATEST(0, stock - ?) WHERE id = ?',
+        await client.query(
+          'UPDATE productos SET stock = GREATEST(0, stock - $1) WHERE id = $2',
           [item.cantidad, item.producto_id]
         );
       }
     }
-    await conn.commit();
-    const [rows] = await pool.query('SELECT * FROM pedidos WHERE id = ?', [pedidoId]);
-    res.status(201).json(rows[0]);
+    await client.query('COMMIT');
+    res.status(201).json(pedido);
   } catch (err) {
-    await conn.rollback();
+    await client.query('ROLLBACK');
     res.status(500).json({ error: err.message });
   } finally {
-    conn.release();
+    client.release();
   }
 });
 
 app.put('/api/pedidos/:id', auth, async (req, res) => {
   const { cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago, estado_pedido } = req.body;
-  await pool.query(
-    'UPDATE pedidos SET cliente_id=?, empleado_id=?, fecha_entrega=?, monto_total=?, anticipo_pagado=?, estado_pago=? WHERE id=?',
+  const { rows } = await pool.query(
+    'UPDATE pedidos SET cliente_id=$1, empleado_id=$2, fecha_entrega=$3, monto_total=$4, anticipo_pagado=$5, estado_pago=$6 WHERE id=$7 RETURNING *',
     [cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago, req.params.id]
   );
-  const [rows] = await pool.query('SELECT * FROM pedidos WHERE id = ?', [req.params.id]);
   res.json(rows[0]);
 });
 
 app.delete('/api/pedidos/:id', auth, async (req, res) => {
-  await pool.query('DELETE FROM detalle_pedido WHERE pedido_id = ?', [req.params.id]);
-  await pool.query('DELETE FROM pedidos WHERE id = ?', [req.params.id]);
+  await pool.query('DELETE FROM detalle_pedido WHERE pedido_id = $1', [req.params.id]);
+  await pool.query('DELETE FROM pedidos WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
 });
 
 // ── Usuarios ─────────────────────────────────────────────────────────────────
 app.get('/api/usuarios', auth, async (req, res) => {
-  const [rows] = await pool.query('SELECT id, nombre, email, rol, estado FROM usuarios ORDER BY id');
+  const { rows } = await pool.query('SELECT id, nombre, email, rol, estado FROM usuarios ORDER BY id');
   res.json(rows);
 });
 
 app.post('/api/usuarios', auth, async (req, res) => {
   const { nombre, email, password, rol } = req.body;
   const hash = await bcrypt.hash(password, 10);
-  const [result] = await pool.query(
-    'INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES (?, ?, ?, ?)',
+  const { rows } = await pool.query(
+    'INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES ($1, $2, $3, $4) RETURNING id',
     [nombre, email, hash, rol]
   );
-  res.status(201).json({ id: result.insertId, nombre, email, rol, estado: 1 });
+  res.status(201).json({ id: rows[0].id, nombre, email, rol, estado: 1 });
 });
 
 app.put('/api/usuarios/:id', auth, async (req, res) => {
   const { nombre, email, rol, estado, password } = req.body;
+  let rows;
   if (password) {
     const hash = await bcrypt.hash(password, 10);
-    await pool.query(
-      'UPDATE usuarios SET nombre=?, email=?, rol=?, estado=?, password_hash=? WHERE id=?',
+    ({ rows } = await pool.query(
+      'UPDATE usuarios SET nombre=$1, email=$2, rol=$3, estado=$4, password_hash=$5 WHERE id=$6 RETURNING id, nombre, email, rol, estado',
       [nombre, email, rol, estado, hash, req.params.id]
-    );
+    ));
   } else {
-    await pool.query(
-      'UPDATE usuarios SET nombre=?, email=?, rol=?, estado=? WHERE id=?',
+    ({ rows } = await pool.query(
+      'UPDATE usuarios SET nombre=$1, email=$2, rol=$3, estado=$4 WHERE id=$5 RETURNING id, nombre, email, rol, estado',
       [nombre, email, rol, estado, req.params.id]
-    );
+    ));
   }
-  const [rows] = await pool.query('SELECT id, nombre, email, rol, estado FROM usuarios WHERE id = ?', [req.params.id]);
   res.json(rows[0]);
 });
 
 app.delete('/api/usuarios/:id', auth, async (req, res) => {
-  await pool.query('DELETE FROM usuarios WHERE id = ?', [req.params.id]);
+  await pool.query('DELETE FROM usuarios WHERE id = $1', [req.params.id]);
   res.json({ ok: true });
 });
 
