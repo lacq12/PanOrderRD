@@ -46,7 +46,7 @@ function endOfDay(d) {
 }
 
 function getPedidoDate(p) {
-  return p.fecha_registro || p.creado_en || p.created_at
+  return p.fecha_registro || p.creado_en || p.created_at || p.fecha_entrega
 }
 
 function isInRange(p, rangeType, fromDate, toDate) {
