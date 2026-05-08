@@ -6,8 +6,16 @@ const pool    = require('./db');
 require('dotenv').config();
 
 const app = express();
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

@@ -1,6 +1,6 @@
 // api.js
 
-const BASE = '/api'; // ✔ CORREGIDO para usar Vite proxy
+const BASE = import.meta.env.VITE_API_URL ?? '/api';
 
 function getToken() {
   return localStorage.getItem('token');
