@@ -75,11 +75,17 @@ export default function ModuleA() {
   const loading = useLoading()
   const { baseColor, highlightColor } = skeletonTheme()
 
+  const toNumber = (value) => {
+    const number = Number(value)
+    return Number.isFinite(number) ? number : 0
+  }
+
   const { esperados, cobrados, pendiente } = useMemo(() => {
     const activos = pedidos.filter(p => p.estado_pedido !== 'Cancelado')
-    const esperados = activos.reduce((sum, p) => sum + (p.monto_total || 0), 0)
-    const cobrados  = activos.reduce((sum, p) => sum + (p.anticipo_pagado || 0), 0)
-    return { esperados, cobrados, pendiente: esperados - cobrados }
+    const esperados = activos.reduce((sum, p) => sum + toNumber(p.monto_total), 0)
+    const cobrados  = activos.reduce((sum, p) => sum + toNumber(p.anticipo_pagado), 0)
+    const pendiente = esperados - cobrados
+    return { esperados, cobrados, pendiente }
   }, [pedidos])
 
   const ingredientesConsolidados = useMemo(() => {
