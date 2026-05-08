@@ -29,6 +29,7 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [otpCode, setOtpCode] = useState(['', '', '', '', '', ''])
   const [activeTab, setActiveTab] = useState('Dashboard')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -44,6 +45,7 @@ export default function App() {
   const viewText = {
     login:             { title: 'Iniciar sesión', sub: 'Ingresa tus datos para acceder a tu cuenta.' },
     'forgot-password': { title: 'Recuperar',      sub: 'Enviaremos un código de verificación a tu correo.' },
+    'verify-otp':      { title: 'Verificar',      sub: 'Ingresa el código de 6 dígitos que enviamos a tu correo.' },
     'reset-password':  { title: 'Restablecer',    sub: 'Tu nueva contraseña debe ser diferente.' },
   }
 
@@ -58,6 +60,13 @@ export default function App() {
         await loadAll()
         setView('dashboard')
       } else if (view === 'forgot-password') {
+        setOtpCode(['', '', '', '', '', ''])
+        setView('verify-otp')
+      } else if (view === 'verify-otp') {
+        if (otpCode.some(d => d === '')) {
+          setLoginError('Ingresa el código completo')
+          return
+        }
         setView('reset-password')
       } else if (view === 'reset-password') {
         setView('login')
@@ -333,16 +342,66 @@ export default function App() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email */}
-              <div className="space-y-2.5">
-                <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Correo electrónico</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="ejemplo@correo.com"
-                  className={inputLogin}
-                />
-              </div>
+              {view !== 'verify-otp' && (
+                <div className="space-y-2.5">
+                  <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Correo electrónico</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="ejemplo@correo.com"
+                    className={inputLogin}
+                  />
+                </div>
+              )}
+
+              {/* OTP */}
+              {view === 'verify-otp' && (
+                <div className="space-y-2.5">
+                  <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Código de verificación</label>
+                  <p className="text-xs text-zinc-400 dark:text-[#8D96A5] ml-1">Enviado a {email || 'tu correo'}</p>
+                  <div className="flex gap-2 sm:gap-3 justify-between pt-2">
+                    {otpCode.map((digit, idx) => (
+                      <input
+                        key={idx}
+                        id={`otp-${idx}`}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={e => {
+                          const v = e.target.value.replace(/\D/g, '').slice(-1)
+                          const next = [...otpCode]
+                          next[idx] = v
+                          setOtpCode(next)
+                          if (v && idx < 5) document.getElementById(`otp-${idx + 1}`)?.focus()
+                        }}
+                        onKeyDown={e => {
+                          if (e.key === 'Backspace' && !otpCode[idx] && idx > 0) {
+                            document.getElementById(`otp-${idx - 1}`)?.focus()
+                          }
+                        }}
+                        onPaste={e => {
+                          const paste = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
+                          if (paste.length) {
+                            e.preventDefault()
+                            const next = [...otpCode]
+                            for (let i = 0; i < 6; i++) next[i] = paste[i] || ''
+                            setOtpCode(next)
+                            document.getElementById(`otp-${Math.min(paste.length, 5)}`)?.focus()
+                          }
+                        }}
+                        className="w-full aspect-square max-w-16 text-center text-xl sm:text-2xl font-semibold rounded-2xl border border-zinc-200 dark:border-[#303440] bg-white dark:bg-[#1A1D24]/50 focus:outline-none focus:ring-1 focus:ring-[#E37A33] focus:border-[#E37A33] transition-all text-zinc-900 dark:text-white"
+                      />
+                    ))}
+                  </div>
+                  <div className="flex justify-end pt-2">
+                    <button type="button" onClick={() => { setLoginError(''); setView('forgot-password') }} className="text-sm font-semibold text-zinc-500 dark:text-[#8D96A5] hover:text-[#E37A33] transition-colors">
+                      Reenviar código
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Password */}
               {(view === 'login' || view === 'reset-password') && (
@@ -419,7 +478,7 @@ export default function App() {
                   )}
                   {submitting
                     ? 'Cargando...'
-                    : view === 'login' ? 'Iniciar sesión' : view === 'forgot-password' ? 'Enviar código' : 'Restablecer contraseña'
+                    : view === 'login' ? 'Iniciar sesión' : view === 'forgot-password' ? 'Enviar código' : view === 'verify-otp' ? 'Verificar código' : 'Restablecer contraseña'
                   }
                 </button>
               </div>
