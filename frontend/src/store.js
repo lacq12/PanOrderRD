@@ -17,7 +17,7 @@ export const useStore = create((set, get) => ({
       api.getPedidos(),
       api.getEmpleados(),
       api.getUsuarios(),
-      api.getUnidades(),
+      api.getUnidades().catch(() => []),
     ]);
     set({ productos, clientes, pedidos, empleados, usuarios, unidades });
   },

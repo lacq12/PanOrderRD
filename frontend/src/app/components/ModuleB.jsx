@@ -137,7 +137,8 @@ function ProductoModal({ productoId, onClose }) {
             <div>
               <label className="text-sm font-medium block mb-1.5">Categoría</label>
               <select value={form.categoria} onChange={e => setField('categoria', e.target.value)} className={inputCls}>
-                <option value="">Sin categorías registradas</option>
+                <option value="">Seleccionar categoría</option>
+                {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
 
