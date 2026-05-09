@@ -311,18 +311,29 @@ export default function ModuleA() {
         <div className="px-6 py-4 border-b border-zinc-200 dark:border-[#303440]">
           <h2 className="font-semibold">Ingredientes necesarios <span className="text-xs font-normal text-zinc-500 dark:text-[#8D96A5]">(pedidos activos)</span></h2>
         </div>
-        <div className="p-6">
+        <div className="overflow-x-auto">
           {ingredientesConsolidados.length === 0 ? (
             <p className="text-center text-zinc-500 dark:text-[#8D96A5] py-6 text-sm">No hay pedidos activos con ingredientes registrados.</p>
           ) : (
-            <div className="flex flex-wrap gap-2">
-              {ingredientesConsolidados.map(ing => (
-                <div key={ing.nombre} className="px-3 py-1.5 rounded-full bg-zinc-100 dark:bg-[#242730] text-sm">
-                  <span className="font-medium">{ing.nombre}</span>
-                  <span className="text-zinc-500 dark:text-[#8D96A5] ml-1">{ing.cantidad} {ing.unidad}</span>
-                </div>
-              ))}
-            </div>
+            <table className="w-full text-sm">
+              <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440]">
+                <tr>
+                  {['#', 'Ingrediente', 'Cantidad', 'Unidad'].map(h => (
+                    <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 dark:divide-[#303440]/50">
+                {ingredientesConsolidados.map((ing, i) => (
+                  <tr key={ing.nombre} className="hover:bg-zinc-50/50 dark:hover:bg-[#242730]/30 transition-colors">
+                    <td className="px-6 py-3 text-xs text-zinc-400">{i + 1}</td>
+                    <td className="px-6 py-3 font-medium">{ing.nombre}</td>
+                    <td className="px-6 py-3">{ing.cantidad}</td>
+                    <td className="px-6 py-3 text-zinc-500 dark:text-[#8D96A5]">{ing.unidad}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       </div>
