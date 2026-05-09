@@ -226,7 +226,9 @@ app.delete('/api/empleados/:id', auth, async (req, res) => {
 app.get('/api/pedidos', auth, async (req, res) => {
   try {
     const { rows } = await pool.query(`
-      SELECT p.*, c.nombre AS cliente_nombre, c.apellido AS cliente_apellido,
+      SELECT p.id, p.cliente_id, p.empleado_id, p.fecha_entrega, p.fecha_registro,
+             p.monto_total, p.anticipo_pagado, p.estado_pago, p.estado_pedido,
+             c.nombre AS cliente_nombre, c.apellido AS cliente_apellido,
              c.telefono AS cliente_telefono
       FROM pedidos p
       LEFT JOIN clientes c ON c.id = p.cliente_id

@@ -269,7 +269,7 @@ export default function ModuleA() {
           <table className="w-full text-sm">
             <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440] sticky top-0">
               <tr>
-                {['#', 'Fecha de Entrega', 'Total', 'Anticipo', 'Estado Pago', 'Estado Pedido'].map(h => (
+                {['#', 'Fecha Registro', 'Fecha de Entrega', 'Total', 'Anticipo', 'Estado Pago', 'Estado Pedido'].map(h => (
                   <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
                 ))}
               </tr>
@@ -277,7 +277,7 @@ export default function ModuleA() {
             <tbody className="divide-y divide-zinc-100 dark:divide-[#303440]/50">
               {pedidosRecientes.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-zinc-500 dark:text-[#8D96A5]">
+                  <td colSpan={7} className="py-12 text-center text-zinc-500 dark:text-[#8D96A5]">
                     <Package size={32} className="mx-auto opacity-40 mb-2" />
                     <p className="font-medium">No hay pedidos en este período.</p>
                   </td>
@@ -285,6 +285,7 @@ export default function ModuleA() {
               ) : pedidosRecientes.map(p => (
                 <tr key={p.id} className="hover:bg-zinc-50/50 dark:hover:bg-[#242730]/30 transition-colors">
                   <td className="px-6 py-4 font-mono text-xs text-zinc-500">#{String(p.id).padStart(4, '0')}</td>
+                  <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{formatDate(p.fecha_registro)}</td>
                   <td className="px-6 py-4">{formatDate(p.fecha_entrega)}</td>
                   <td className="px-6 py-4 font-medium">{fmt(p.monto_total)}</td>
                   <td className="px-6 py-4">{fmt(p.anticipo_pagado)}</td>

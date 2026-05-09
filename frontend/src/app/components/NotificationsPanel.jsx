@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Bell, X, AlertTriangle, Clock, Package } from 'lucide-react'
 import { useStore } from '../../store.js'
 
@@ -48,7 +48,13 @@ function getNotifications(pedidos, productos) {
 
 export default function NotificationsPanel({ isOpen, onClose }) {
   const { pedidos, productos } = useStore()
-  const notifs = useMemo(() => getNotifications(pedidos, productos), [pedidos, productos])
+  const [dismissed, setDismissed] = useState(new Set())
+
+  const allNotifs = useMemo(() => getNotifications(pedidos, productos), [pedidos, productos])
+  const notifs = allNotifs.filter(n => !dismissed.has(n.id))
+
+  const dismiss = (id) => setDismissed(prev => new Set([...prev, id]))
+  const dismissAll = () => setDismissed(new Set(allNotifs.map(n => n.id)))
 
   if (!isOpen) return null
 
@@ -63,9 +69,19 @@ export default function NotificationsPanel({ isOpen, onClose }) {
             </span>
           )}
         </div>
-        <button onClick={onClose} className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730]">
-          <X size={16} />
-        </button>
+        <div className="flex items-center gap-1">
+          {notifs.length > 1 && (
+            <button
+              onClick={dismissAll}
+              className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 px-2 py-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors"
+            >
+              Limpiar todo
+            </button>
+          )}
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730]">
+            <X size={16} />
+          </button>
+        </div>
       </div>
 
       {notifs.length === 0 ? (
@@ -79,7 +95,13 @@ export default function NotificationsPanel({ isOpen, onClose }) {
           {notifs.map(n => (
             <li key={n.id} className="flex items-start gap-3 px-4 py-3">
               <span className={`mt-0.5 p-1.5 rounded-lg shrink-0 ${n.color}`}>{n.icon}</span>
-              <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-snug">{n.text}</p>
+              <p className="flex-1 text-xs text-zinc-700 dark:text-zinc-300 leading-snug">{n.text}</p>
+              <button
+                onClick={() => dismiss(n.id)}
+                className="shrink-0 p-1 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors"
+              >
+                <X size={12} />
+              </button>
             </li>
           ))}
         </ul>
