@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Sun, Moon, Eye, EyeOff, ArrowLeft,
   LayoutDashboard, Package, Users, ShoppingCart,
