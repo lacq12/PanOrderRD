@@ -204,12 +204,12 @@ function ProductoModal({ productoId, onClose }) {
                         placeholder="Cant."
                         value={ing.cantidad}
                         onChange={e => updateIngrediente(i, 'cantidad', e.target.value)}
-                        className={`${inputCls} w-24! shrink-0`}
+                        className={`${inputCls} w-24 shrink-0`}
                       />
                       <select
                         value={ing.unidad}
                         onChange={e => updateIngrediente(i, 'unidad', e.target.value)}
-                        className={`${inputCls} w-24! shrink-0`}
+                        className={`${inputCls} w-24 shrink-0`}
                       >
                         <option value="">—</option>
                         {unidades.map(u => (

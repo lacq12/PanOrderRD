@@ -4,16 +4,15 @@ import {
   LayoutDashboard, Package, Users, ShoppingCart,
   Settings, LogOut, ChevronLeft, ChevronRight, Bell, Menu, Ruler
 } from 'lucide-react'
-import ModuleA from './ModuleA.jsx'
-import ModuleB from './components/ModuleB.jsx'
-import ModuleC from './components/ModuleC.jsx'
-import ModuleD from './components/ModuleD.jsx'
-import ModuleConfig from './components/ModuleConfig.jsx'
-import ModuleUnidades from './components/ModuleUnidades.jsx'
+import Dashboard from './Dashboard.jsx'
+import Productos from './components/Productos.jsx'
+import Clientes from './components/Clientes.jsx'
+import Pedidos from './components/Pedidos.jsx'
+import Configuracion from './components/Configuracion.jsx'
+import Unidades from './components/Unidades.jsx'
 import NotificationsPanel from './components/NotificationsPanel.jsx'
 import { api } from '../api.js'
 import { useStore } from '../store.js'
-import { useMemo } from 'react'
 
 const CAROUSEL_IMAGES = [
   `${import.meta.env.BASE_URL}galeria-equipo.png`,
@@ -109,13 +108,13 @@ export default function App() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'Dashboard':     return <ModuleA />
-      case 'Productos':     return <ModuleB />
-      case 'Clientes':      return <ModuleC />
-      case 'Pedidos':       return <ModuleD />
-      case 'Unidades':      return <ModuleUnidades />
-      case 'Configuración': return <ModuleConfig />
-      default:              return <ModuleA />
+      case 'Dashboard':     return <Dashboard />
+      case 'Productos':     return <Productos />
+      case 'Clientes':      return <Clientes />
+      case 'Pedidos':       return <Pedidos />
+      case 'Unidades':      return <Unidades />
+      case 'Configuración': return <Configuracion />
+      default:              return <Dashboard />
     }
   }
 

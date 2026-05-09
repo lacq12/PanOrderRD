@@ -106,7 +106,7 @@ function UnidadModal({ unidadId, onClose }) {
         <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="text-sm font-medium block mb-1.5">Descripcion</label>
+              <label className="text-sm font-medium block mb-1.5">Descripción</label>
               <input
                 required
                 value={form.descripcion}
@@ -116,7 +116,7 @@ function UnidadModal({ unidadId, onClose }) {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-sm font-medium block mb-1.5">Simbolo</label>
+              <label className="text-sm font-medium block mb-1.5">Símbolo</label>
               <input
                 required
                 value={form.unidad_medida}

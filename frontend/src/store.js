@@ -103,6 +103,7 @@ export const useStore = create((set, get) => ({
   addUnidad: async (u) => {
     const nuevo = await api.createUnidad(u);
     set((s) => ({ unidades: [...s.unidades, nuevo] }));
+    return nuevo;
   },
   updateUnidad: async (id, u) => {
     const updated = await api.updateUnidad(id, u);

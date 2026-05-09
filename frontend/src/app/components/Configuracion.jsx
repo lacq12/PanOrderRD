@@ -136,7 +136,10 @@ function UsuarioModal({ usuarioId, onClose }) {
         </div>
         <div>
           <label className="text-sm font-medium block mb-1.5">Rol *</label>
-          <input value={form.rol} onChange={e => setField('rol', e.target.value)} placeholder="Ej: Admin, Gerente, Vendedor" className={inputCls} />
+          <select value={form.rol} onChange={e => setField('rol', e.target.value)} className={inputCls}>
+            <option value="">Seleccionar rol</option>
+            {ROLES_USUARIO.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
         </div>
         <div className="flex justify-end gap-3 pt-2 border-t border-zinc-200 dark:border-[#303440]">
           <button type="button" onClick={onClose} className="px-5 py-2.5 text-sm font-medium text-zinc-600 dark:text-[#8D96A5] hover:text-zinc-900 dark:hover:text-white transition-colors">
@@ -310,7 +313,7 @@ export default function ModuleConfig() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${rolBadge[u.rol] || 'bg-zinc-100 text-zinc-600'}`}>{u.rol}</span>
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${rolBadge[u.rol] || 'bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400'}`}>{u.rol}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
@@ -336,6 +339,7 @@ export default function ModuleConfig() {
             </button>
           </div>
           <div className="border border-zinc-200 dark:border-[#303440] rounded-2xl bg-white dark:bg-[#1A1D24] overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440]">
                 <tr>
@@ -378,6 +382,7 @@ export default function ModuleConfig() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       )}

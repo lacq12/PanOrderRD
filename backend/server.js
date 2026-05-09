@@ -81,10 +81,10 @@ app.get('/api/productos', auth, async (req, res) => {
 
 app.post('/api/productos', auth, async (req, res) => {
   try {
-    const { nombre, descripcion, precio, stock, categoria, disponible } = req.body;
+    const { nombre, descripcion, precio, stock, categoria, disponible, ingredientes } = req.body;
     const { rows } = await pool.query(
-      'INSERT INTO productos (nombre, descripcion, precio, stock, categoria, disponible) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [nombre, descripcion, precio, stock ?? 0, categoria, disponible ? 1 : 0]
+      'INSERT INTO productos (nombre, descripcion, precio, stock, categoria, disponible, ingredientes) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [nombre, descripcion, precio, stock ?? 0, categoria, disponible ? 1 : 0, JSON.stringify(ingredientes ?? [])]
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -95,10 +95,10 @@ app.post('/api/productos', auth, async (req, res) => {
 
 app.put('/api/productos/:id', auth, async (req, res) => {
   try {
-    const { nombre, descripcion, precio, stock, categoria, disponible } = req.body;
+    const { nombre, descripcion, precio, stock, categoria, disponible, ingredientes } = req.body;
     const { rows } = await pool.query(
-      'UPDATE productos SET nombre=$1, descripcion=$2, precio=$3, stock=$4, categoria=$5, disponible=$6 WHERE id=$7 RETURNING *',
-      [nombre, descripcion, precio, stock, categoria, disponible ? 1 : 0, req.params.id]
+      'UPDATE productos SET nombre=$1, descripcion=$2, precio=$3, stock=$4, categoria=$5, disponible=$6, ingredientes=$7 WHERE id=$8 RETURNING *',
+      [nombre, descripcion, precio, stock, categoria, disponible ? 1 : 0, JSON.stringify(ingredientes ?? []), req.params.id]
     );
     res.json(rows[0]);
   } catch (err) {
@@ -289,8 +289,8 @@ app.put('/api/pedidos/:id', auth, async (req, res) => {
   try {
     const { cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago, estado_pedido } = req.body;
     const { rows } = await pool.query(
-      'UPDATE pedidos SET cliente_id=$1, empleado_id=$2, fecha_entrega=$3, monto_total=$4, anticipo_pagado=$5, estado_pago=$6 WHERE id=$7 RETURNING *',
-      [cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago, req.params.id]
+      'UPDATE pedidos SET cliente_id=$1, empleado_id=$2, fecha_entrega=$3, monto_total=$4, anticipo_pagado=$5, estado_pago=$6, estado_pedido=$7 WHERE id=$8 RETURNING *',
+      [cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago, estado_pedido, req.params.id]
     );
     res.json(rows[0]);
   } catch (err) {

@@ -4,7 +4,7 @@ import {
   Search, Eye, Edit2, Trash2, ArrowLeft, Plus, ShoppingCart,
   Package, Check, AlertCircle, ChevronRight, Phone, Mail, Briefcase
 } from 'lucide-react'
-import { ClienteForm } from './ModuleC.jsx'
+import { ClienteForm } from './Clientes.jsx'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useLoading, skeletonTheme } from '../../hooks/useLoading.js'
@@ -65,7 +65,7 @@ const pedidoBadge = {
   Confirmado: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400',
   Pendiente:  'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400',
   Cancelado:  'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400',
-  Entregado:  'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300',
+  Entregado:  'bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400',
 }
 const pagoBadge = {
   Completado: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400',
