@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Sun, Moon, Eye, EyeOff, ArrowLeft,
   LayoutDashboard, Package, Users, ShoppingCart,
@@ -14,6 +14,13 @@ import { api } from '../api.js'
 import { useStore } from '../store.js'
 import { useMemo } from 'react'
 
+const CAROUSEL_IMAGES = [
+  `${import.meta.env.BASE_URL}galeria-equipo.png`,
+  `${import.meta.env.BASE_URL}boss-panaderia.jpeg`,
+  `${import.meta.env.BASE_URL}local-panaderia.jpg`,
+  `${import.meta.env.BASE_URL}productos-panaderia.jpg`,
+]
+
 const sidebarLinks = [
   { icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
   { icon: <Package size={20} />,         label: 'Productos' },
@@ -25,6 +32,12 @@ export default function App() {
   const loadAll   = useStore((s) => s.loadAll)
   const pedidos   = useStore((s) => s.pedidos)
   const productos = useStore((s) => s.productos)
+
+  const [carouselIdx, setCarouselIdx] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setCarouselIdx(i => (i + 1) % CAROUSEL_IMAGES.length), 5000)
+    return () => clearInterval(t)
+  }, [])
 
   const hasNotifs = useMemo(() => {
     const now = new Date()
@@ -297,28 +310,39 @@ export default function App() {
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
 
-          {/* Imagen desktop */}
-          <div className="absolute inset-0 hidden lg:block">
-            <img
-              src="https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=2070&auto=format&fit=crop"
-              alt="Panadería"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+          {/* Carousel desktop */}
+          <div className="absolute inset-0 hidden lg:block overflow-hidden">
+            {CAROUSEL_IMAGES.map((src, i) => (
+              <img
+                key={src}
+                src={src}
+                alt="Panadería Hermanos Paca"
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === carouselIdx ? 'opacity-100' : 'opacity-0'}`}
+              />
+            ))}
             <div className="absolute top-8 left-8 z-20">
               <div className="flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 rounded-xl w-20 h-20">
                 <img src={`${import.meta.env.BASE_URL}logo-hermanos-paca.png`} alt="Hermanos Paca" style={{ width: '100px', height: '100px' }} className="object-contain" />
               </div>
             </div>
             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent z-10" />
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+              {CAROUSEL_IMAGES.map((_, i) => (
+                <button key={i} onClick={() => setCarouselIdx(i)} className={`w-2 h-2 rounded-full transition-all ${i === carouselIdx ? 'bg-white w-5' : 'bg-white/40'}`} />
+              ))}
+            </div>
           </div>
 
-          {/* Imagen mobile */}
-          <div className="absolute inset-0 lg:hidden">
-            <img
-              src="https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=2070&auto=format&fit=crop"
-              alt="Panadería"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+          {/* Carousel mobile */}
+          <div className="absolute inset-0 lg:hidden overflow-hidden">
+            {CAROUSEL_IMAGES.map((src, i) => (
+              <img
+                key={src}
+                src={src}
+                alt="Panadería Hermanos Paca"
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === carouselIdx ? 'opacity-100' : 'opacity-0'}`}
+              />
+            ))}
             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/60 to-transparent z-10" />
           </div>
 
