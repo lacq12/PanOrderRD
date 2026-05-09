@@ -15,10 +15,10 @@ const estadoBadge = {
 }
 
 const RANGES = [
-  { value: 'today', label: 'Hoy' },
-  { value: 'week',  label: 'Esta semana' },
-  { value: 'month', label: 'Este mes' },
-  { value: 'year',  label: 'Este año' },
+  { value: 'today',  label: 'Hoy' },
+  { value: 'week',   label: 'Esta semana' },
+  { value: 'month',  label: 'Este mes' },
+  { value: 'year',   label: 'Este año' },
   { value: 'custom', label: 'Personalizado' },
 ]
 
@@ -184,10 +184,10 @@ export default function ModuleA() {
   )
 
   const kpis = [
-    { label: 'Ingresos Esperados', value: fmt(esperados),           icon: <TrendingUp size={20} />,   color: 'text-[#E37A33] bg-[#E37A33]/10' },
-    { label: 'Ingresos Cobrados',  value: fmt(cobrados),            icon: <CheckCircle2 size={20} />, color: 'text-emerald-500 bg-emerald-500/10' },
-    { label: 'Saldo Pendiente',    value: fmt(pendiente),           icon: <Clock size={20} />,        color: 'text-red-400 bg-red-400/10' },
-    { label: 'Total Pedidos',      value: pedidosFiltrados.length,  icon: <Package size={20} />,      color: 'text-blue-400 bg-blue-400/10' },
+    { label: 'Ingresos Esperados', value: fmt(esperados),           icon: <TrendingUp size={20} aria-hidden="true" />,   color: 'text-[#E37A33] bg-[#E37A33]/10' },
+    { label: 'Ingresos Cobrados',  value: fmt(cobrados),            icon: <CheckCircle2 size={20} aria-hidden="true" />, color: 'text-emerald-500 bg-emerald-500/10' },
+    { label: 'Saldo Pendiente',    value: fmt(pendiente),           icon: <Clock size={20} aria-hidden="true" />,        color: 'text-red-400 bg-red-400/10' },
+    { label: 'Total Pedidos',      value: pedidosFiltrados.length,  icon: <Package size={20} aria-hidden="true" />,      color: 'text-blue-400 bg-blue-400/10' },
   ]
 
   const customInvalid = rangeType === 'custom' && fromDate && toDate && new Date(fromDate) > new Date(toDate)
@@ -203,11 +203,16 @@ export default function ModuleA() {
 
       {/* Range selector */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl p-1 gap-1">
+        <div
+          role="group"
+          aria-label="Filtrar por período"
+          className="flex bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl p-1 gap-1"
+        >
           {RANGES.map(r => (
             <button
               key={r.value}
               onClick={() => setRangeType(r.value)}
+              aria-pressed={rangeType === r.value}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 rangeType === r.value
                   ? 'bg-[#E37A33] text-white'
@@ -221,14 +226,18 @@ export default function ModuleA() {
 
         {rangeType === 'custom' && (
           <div className="flex items-center gap-2">
+            <label htmlFor="date-from" className="sr-only">Fecha de inicio</label>
             <input
+              id="date-from"
               type="date"
               value={fromDate}
               onChange={e => setFromDate(e.target.value)}
               className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl px-3 py-1.5 text-xs outline-none focus:border-[#E37A33] dark:text-white"
             />
-            <span className="text-xs text-zinc-400">—</span>
+            <span className="text-xs text-zinc-400" aria-hidden="true">—</span>
+            <label htmlFor="date-to" className="sr-only">Fecha de fin</label>
             <input
+              id="date-to"
               type="date"
               value={toDate}
               min={fromDate}
@@ -236,41 +245,41 @@ export default function ModuleA() {
               className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl px-3 py-1.5 text-xs outline-none focus:border-[#E37A33] dark:text-white"
             />
             {customInvalid && (
-              <span className="text-xs text-red-500">Rango inválido</span>
+              <span role="alert" className="text-xs text-red-500">Rango inválido</span>
             )}
           </div>
         )}
 
-        <span className="text-xs text-zinc-400 dark:text-[#8D96A5]">
+        <span className="text-xs text-zinc-400 dark:text-[#8D96A5]" aria-live="polite">
           Mostrando: <span className="font-medium text-zinc-600 dark:text-zinc-300">{getRangeLabel(rangeType, fromDate, toDate)}</span>
         </span>
       </div>
 
       {/* KPI grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <dl className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {kpis.map(({ label, value, icon, color }) => (
           <div key={label} className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-5 flex flex-col gap-3">
             <div className="flex items-start justify-between">
-              <span className="text-sm text-zinc-500 dark:text-[#8D96A5]">{label}</span>
-              <span className={`p-2 rounded-xl ${color}`}>{icon}</span>
+              <dt className="text-sm text-zinc-500 dark:text-[#8D96A5]">{label}</dt>
+              <span className={`p-2 rounded-xl ${color}`} aria-hidden="true">{icon}</span>
             </div>
-            <span className="text-3xl font-semibold">{value}</span>
+            <dd className="text-3xl font-semibold">{value}</dd>
           </div>
         ))}
-      </div>
+      </dl>
 
       {/* Pedidos del período */}
-      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden">
+      <section aria-label="Pedidos recientes" className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden">
         <div className="px-6 py-4 border-b border-zinc-200 dark:border-[#303440] flex items-center justify-between">
           <h2 className="font-semibold">Pedidos recientes</h2>
-          <span className="text-xs text-zinc-400 dark:text-[#8D96A5]">{pedidosRecientes.length} pedido(s)</span>
+          <span className="text-xs text-zinc-400 dark:text-[#8D96A5]" aria-live="polite">{pedidosRecientes.length} pedido(s)</span>
         </div>
         <div className="overflow-x-auto max-h-80 overflow-y-auto">
           <table className="w-full text-sm">
             <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440] sticky top-0">
               <tr>
                 {['#', 'Fecha Registro', 'Fecha de Entrega', 'Total', 'Anticipo', 'Estado Pago', 'Estado Pedido'].map(h => (
-                  <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
+                  <th key={h} scope="col" className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -278,7 +287,7 @@ export default function ModuleA() {
               {pedidosRecientes.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-zinc-500 dark:text-[#8D96A5]">
-                    <Package size={32} className="mx-auto opacity-40 mb-2" />
+                    <Package size={32} className="mx-auto opacity-40 mb-2" aria-hidden="true" />
                     <p className="font-medium">No hay pedidos en este período.</p>
                   </td>
                 </tr>
@@ -304,10 +313,10 @@ export default function ModuleA() {
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
 
       {/* Ingredientes consolidados */}
-      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden">
+      <section aria-label="Ingredientes necesarios para pedidos activos" className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl overflow-hidden">
         <div className="px-6 py-4 border-b border-zinc-200 dark:border-[#303440]">
           <h2 className="font-semibold">Ingredientes necesarios <span className="text-xs font-normal text-zinc-500 dark:text-[#8D96A5]">(pedidos activos)</span></h2>
         </div>
@@ -319,7 +328,7 @@ export default function ModuleA() {
               <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440]">
                 <tr>
                   {['#', 'Ingrediente', 'Cantidad', 'Unidad'].map(h => (
-                    <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
+                    <th key={h} scope="col" className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -336,7 +345,7 @@ export default function ModuleA() {
             </table>
           )}
         </div>
-      </div>
+      </section>
     </div>
   )
 }

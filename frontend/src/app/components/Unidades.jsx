@@ -38,18 +38,26 @@ const inputCls = "w-full bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:
 
 function ConfirmModal({ onCancel, onConfirm, error }) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-md w-full shadow-xl">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onKeyDown={e => e.key === 'Escape' && onCancel()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-unidad-title"
+        className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-md w-full shadow-xl"
+      >
         <div className="flex flex-col items-center text-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500">
+          <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500" aria-hidden="true">
             <Trash2 size={24} />
           </div>
           <div>
-            <h3 className="font-semibold text-lg">¿Eliminar unidad de medida?</h3>
+            <h3 id="confirm-unidad-title" className="font-semibold text-lg">¿Eliminar unidad de medida?</h3>
             <p className="text-sm text-zinc-500 dark:text-[#8D96A5] mt-1">Esta acción no se puede deshacer.</p>
           </div>
           {error && (
-            <div className="w-full bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
+            <div role="alert" className="w-full bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
               {error}
             </div>
           )}
@@ -93,21 +101,36 @@ function UnidadModal({ unidadId, onClose }) {
     }
   }
 
+  const modalTitle = existing ? 'Editar unidad de medida' : 'Nueva unidad de medida'
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl shadow-xl w-full max-w-md">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="unidad-modal-title"
+        className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl shadow-xl w-full max-w-md"
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-[#303440]">
-          <h2 className="font-semibold text-base">{existing ? 'Editar unidad de medida' : 'Nueva unidad de medida'}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-400 hover:text-zinc-600">
-            <X size={18} />
+          <h2 id="unidad-modal-title" className="font-semibold text-base">{modalTitle}</h2>
+          <button
+            onClick={onClose}
+            aria-label="Cerrar modal"
+            className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-400 hover:text-zinc-600"
+          >
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
         <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="text-sm font-medium block mb-1.5">Descripción</label>
+              <label htmlFor="unidad-descripcion" className="text-sm font-medium block mb-1.5">Descripción <span aria-hidden="true">*</span></label>
               <input
+                id="unidad-descripcion"
                 required
                 value={form.descripcion}
                 onChange={e => setField('descripcion', e.target.value)}
@@ -116,8 +139,9 @@ function UnidadModal({ unidadId, onClose }) {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-sm font-medium block mb-1.5">Símbolo</label>
+              <label htmlFor="unidad-simbolo" className="text-sm font-medium block mb-1.5">Símbolo <span aria-hidden="true">*</span></label>
               <input
+                id="unidad-simbolo"
                 required
                 value={form.unidad_medida}
                 onChange={e => setField('unidad_medida', e.target.value)}
@@ -129,7 +153,7 @@ function UnidadModal({ unidadId, onClose }) {
           </div>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
+            <div role="alert" className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
               {error}
             </div>
           )}
@@ -141,6 +165,7 @@ function UnidadModal({ unidadId, onClose }) {
             <button
               type="submit"
               disabled={saving}
+              aria-busy={saving}
               className="px-5 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] disabled:opacity-70 text-white rounded-xl text-sm font-semibold transition-colors"
             >
               {saving ? 'Guardando...' : 'Guardar'}
@@ -201,19 +226,20 @@ export default function ModuleUnidades() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold">Unidades de Medida</h1>
-          <p className="text-sm text-zinc-500 dark:text-[#8D96A5]">Gestion de unidades para ingredientes</p>
+          <p className="text-sm text-zinc-500 dark:text-[#8D96A5]">Gestión de unidades para ingredientes</p>
         </div>
         <button onClick={() => setModal('new')} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors">
-          <Plus size={16} /> Nueva Unidad
+          <Plus size={16} aria-hidden="true" /> Nueva Unidad
         </button>
       </div>
 
       <div className="relative">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
         <input
+          aria-label="Buscar unidades de medida"
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1) }}
-          placeholder="Buscar por descripcion o simbolo..."
+          placeholder="Buscar por descripción o símbolo..."
           className="w-full pl-10 pr-4 py-2.5 text-sm bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
         />
       </div>
@@ -223,8 +249,8 @@ export default function ModuleUnidades() {
           <table className="w-full text-sm">
             <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440]">
               <tr>
-                {['#', 'Descripcion', 'Simbolo', 'Acciones'].map(h => (
-                  <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
+                {['#', 'Descripción', 'Símbolo', 'Acciones'].map(h => (
+                  <th key={h} scope="col" className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -232,7 +258,7 @@ export default function ModuleUnidades() {
               {paged.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="py-12 text-center text-zinc-500 dark:text-[#8D96A5]">
-                    <Ruler size={32} className="mx-auto opacity-40 mb-2" />
+                    <Ruler size={32} className="mx-auto opacity-40 mb-2" aria-hidden="true" />
                     <p className="font-medium">No hay unidades registradas</p>
                   </td>
                 </tr>
@@ -247,11 +273,19 @@ export default function ModuleUnidades() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setModal(u.id)} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white">
-                        <Edit2 size={15} />
+                      <button
+                        onClick={() => setModal(u.id)}
+                        aria-label={`Editar ${u.descripcion}`}
+                        className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white"
+                      >
+                        <Edit2 size={15} aria-hidden="true" />
                       </button>
-                      <button onClick={() => { setDeleteError(''); setDeleteId(u.id) }} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500">
-                        <Trash2 size={15} />
+                      <button
+                        onClick={() => { setDeleteError(''); setDeleteId(u.id) }}
+                        aria-label={`Eliminar ${u.descripcion}`}
+                        className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500"
+                      >
+                        <Trash2 size={15} aria-hidden="true" />
                       </button>
                     </div>
                   </td>
@@ -262,16 +296,16 @@ export default function ModuleUnidades() {
         </div>
         {filtered.length > 0 && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-[#303440]">
-            <span className="text-xs text-zinc-500 dark:text-[#8D96A5]">
+            <span className="text-xs text-zinc-500 dark:text-[#8D96A5]" aria-live="polite">
               Mostrando {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)} a {Math.min(page * PAGE_SIZE, filtered.length)} de {filtered.length} resultados
             </span>
-            <div className="flex items-center gap-1">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Prev</button>
+            <nav aria-label="Paginación de unidades" className="flex items-center gap-1">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} aria-label="Página anterior" className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Prev</button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-                <button key={n} onClick={() => setPage(n)} className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${n === page ? 'bg-[#E37A33] text-white border-[#E37A33]' : 'border-zinc-200 dark:border-[#303440] hover:bg-zinc-50 dark:hover:bg-[#242730]'}`}>{n}</button>
+                <button key={n} onClick={() => setPage(n)} aria-label={`Ir a página ${n}`} aria-current={n === page ? 'page' : undefined} className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${n === page ? 'bg-[#E37A33] text-white border-[#E37A33]' : 'border-zinc-200 dark:border-[#303440] hover:bg-zinc-50 dark:hover:bg-[#242730]'}`}>{n}</button>
               ))}
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Next</button>
-            </div>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} aria-label="Página siguiente" className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Next</button>
+            </nav>
           </div>
         )}
       </div>

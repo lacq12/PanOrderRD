@@ -39,18 +39,26 @@ const inputCls = "w-full bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:
 
 function ConfirmModal({ onCancel, onConfirm, error }) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-md w-full shadow-xl">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onKeyDown={e => e.key === 'Escape' && onCancel()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-producto-title"
+        className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-md w-full shadow-xl"
+      >
         <div className="flex flex-col items-center text-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500">
+          <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500" aria-hidden="true">
             <Trash2 size={24} />
           </div>
           <div>
-            <h3 className="font-semibold text-lg">¿Eliminar producto?</h3>
+            <h3 id="confirm-producto-title" className="font-semibold text-lg">¿Eliminar producto?</h3>
             <p className="text-sm text-zinc-500 dark:text-[#8D96A5] mt-1">Esta acción no se puede deshacer.</p>
           </div>
           {error && (
-            <div className="w-full bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
+            <div role="alert" className="w-full bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
               {error}
             </div>
           )}
@@ -102,41 +110,54 @@ function ProductoModal({ productoId, onClose }) {
     onClose()
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+  const modalTitle = existing ? 'Editar producto' : 'Nuevo producto'
 
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="producto-modal-title"
+        className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+      >
         {/* Modal header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-[#303440] shrink-0">
-          <h2 className="font-semibold text-base">{existing ? 'Editar producto' : 'Nuevo producto'}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-400 hover:text-zinc-600">
-            <X size={18} />
+          <h2 id="producto-modal-title" className="font-semibold text-base">{modalTitle}</h2>
+          <button
+            onClick={onClose}
+            aria-label="Cerrar modal"
+            className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-400 hover:text-zinc-600"
+          >
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
         <form onSubmit={handleSave} className="flex flex-col flex-1 overflow-hidden">
           <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
 
-            {/* Row 1: Nombre / Precio / Stock */}
+            {/* Nombre / Precio / Stock */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-1">
-                <label className="text-sm font-medium block mb-1.5">Nombre del producto</label>
-                <input required value={form.nombre} onChange={e => setField('nombre', e.target.value)} placeholder="Ej. Pan Dulce" className={inputCls} />
+                <label htmlFor="prod-nombre" className="text-sm font-medium block mb-1.5">Nombre del producto</label>
+                <input id="prod-nombre" required value={form.nombre} onChange={e => setField('nombre', e.target.value)} placeholder="Ej. Pan Dulce" className={inputCls} />
               </div>
               <div>
-                <label className="text-sm font-medium block mb-1.5">Precio de venta ($)</label>
-                <input required type="number" step="0.01" min="0" value={form.precio} onChange={e => setField('precio', e.target.value)} placeholder="Ej. 15.50" className={inputCls} />
+                <label htmlFor="prod-precio" className="text-sm font-medium block mb-1.5">Precio de venta ($)</label>
+                <input id="prod-precio" required type="number" step="0.01" min="0" value={form.precio} onChange={e => setField('precio', e.target.value)} placeholder="Ej. 15.50" className={inputCls} />
               </div>
               <div>
-                <label className="text-sm font-medium block mb-1.5">Stock actual</label>
-                <input required type="number" min="0" value={form.stock} onChange={e => setField('stock', e.target.value)} placeholder="0" className={inputCls} />
+                <label htmlFor="prod-stock" className="text-sm font-medium block mb-1.5">Stock actual</label>
+                <input id="prod-stock" required type="number" min="0" value={form.stock} onChange={e => setField('stock', e.target.value)} placeholder="0" className={inputCls} />
               </div>
             </div>
 
             {/* Categoría */}
             <div>
-              <label className="text-sm font-medium block mb-1.5">Categoría</label>
-              <select value={form.categoria} onChange={e => setField('categoria', e.target.value)} className={inputCls}>
+              <label htmlFor="prod-categoria" className="text-sm font-medium block mb-1.5">Categoría</label>
+              <select id="prod-categoria" value={form.categoria} onChange={e => setField('categoria', e.target.value)} className={inputCls}>
                 <option value="">Seleccionar categoría</option>
                 {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -144,8 +165,9 @@ function ProductoModal({ productoId, onClose }) {
 
             {/* Descripción */}
             <div>
-              <label className="text-sm font-medium block mb-1.5">Descripción</label>
+              <label htmlFor="prod-descripcion" className="text-sm font-medium block mb-1.5">Descripción</label>
               <textarea
+                id="prod-descripcion"
                 value={form.descripcion}
                 onChange={e => setField('descripcion', e.target.value)}
                 placeholder="Breve descripción del producto..."
@@ -160,11 +182,12 @@ function ProductoModal({ productoId, onClose }) {
                 type="button"
                 role="checkbox"
                 aria-checked={form.disponible}
+                aria-label="Disponible para venta"
                 onClick={() => setField('disponible', !form.disponible)}
                 className={`w-4 h-4 rounded flex items-center justify-center shrink-0 transition-colors ${form.disponible ? 'bg-[#E37A33]' : 'border border-zinc-300 dark:border-[#303440] bg-white dark:bg-[#1A1D24]'}`}
               >
                 {form.disponible && (
-                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
                     <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 )}
@@ -175,13 +198,14 @@ function ProductoModal({ productoId, onClose }) {
             {/* Ingredientes */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-medium">Lista de Ingredientes (Receta)</label>
+                <p className="text-sm font-medium">Lista de Ingredientes (Receta)</p>
                 <button
                   type="button"
                   onClick={addIngrediente}
+                  aria-label="Añadir ingrediente"
                   className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#E37A33] hover:bg-[#CC6824] text-white text-xs font-medium rounded-lg transition-colors shrink-0"
                 >
-                  <Plus size={13} /> <span>Añadir</span>
+                  <Plus size={13} aria-hidden="true" /> <span>Añadir</span>
                 </button>
               </div>
 
@@ -194,6 +218,7 @@ function ProductoModal({ productoId, onClose }) {
                   {form.ingredientes.map((ing, i) => (
                     <div key={i} className="flex gap-2 items-center">
                       <input
+                        aria-label={`Nombre del ingrediente ${i + 1}`}
                         placeholder="Nombre del ingrediente"
                         value={ing.nombre}
                         onChange={e => updateIngrediente(i, 'nombre', e.target.value)}
@@ -201,6 +226,7 @@ function ProductoModal({ productoId, onClose }) {
                       />
                       <input
                         type="number" step="0.01" min="0"
+                        aria-label={`Cantidad del ingrediente ${i + 1}`}
                         placeholder="Cant."
                         value={ing.cantidad}
                         onChange={e => updateIngrediente(i, 'cantidad', e.target.value)}
@@ -208,6 +234,7 @@ function ProductoModal({ productoId, onClose }) {
                       />
                       <select
                         value={ing.unidad}
+                        aria-label={`Unidad del ingrediente ${i + 1}`}
                         onChange={e => updateIngrediente(i, 'unidad', e.target.value)}
                         className="w-24 shrink-0 bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white"
                       >
@@ -216,8 +243,13 @@ function ProductoModal({ productoId, onClose }) {
                           <option key={u.id} value={u.unidad_medida}>{u.unidad_medida}</option>
                         ))}
                       </select>
-                      <button type="button" onClick={() => removeIngrediente(i)} className="p-2 text-zinc-400 hover:text-red-500 transition-colors shrink-0">
-                        <X size={16} />
+                      <button
+                        type="button"
+                        onClick={() => removeIngrediente(i)}
+                        aria-label={`Eliminar ingrediente ${i + 1}`}
+                        className="p-2 text-zinc-400 hover:text-red-500 transition-colors shrink-0"
+                      >
+                        <X size={16} aria-hidden="true" />
                       </button>
                     </div>
                   ))}
@@ -294,13 +326,14 @@ export default function ModuleB() {
           <p className="text-sm text-zinc-500 dark:text-[#8D96A5]">Gestión de catálogo e ingredientes</p>
         </div>
         <button onClick={() => setModal('new')} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors">
-          <Plus size={16} /> Crear Producto
+          <Plus size={16} aria-hidden="true" /> Crear Producto
         </button>
       </div>
 
       <div className="relative">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
         <input
+          aria-label="Buscar productos"
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1) }}
           placeholder="Buscar por nombre, categoría o descripción..."
@@ -314,7 +347,7 @@ export default function ModuleB() {
             <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440]">
               <tr>
                 {['#', 'Nombre', 'Descripción', 'Precio', 'Stock', 'Categoría', 'Disponible', 'Acciones'].map(h => (
-                  <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
+                  <th key={h} scope="col" className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -322,7 +355,7 @@ export default function ModuleB() {
               {paged.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-zinc-500 dark:text-[#8D96A5]">
-                    <Package size={32} className="mx-auto opacity-40 mb-2" />
+                    <Package size={32} className="mx-auto opacity-40 mb-2" aria-hidden="true" />
                     <p className="font-medium">No hay productos registrados</p>
                   </td>
                 </tr>
@@ -344,11 +377,19 @@ export default function ModuleB() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setModal(p.id)} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white">
-                        <Edit2 size={15} />
+                      <button
+                        onClick={() => setModal(p.id)}
+                        aria-label={`Editar ${p.nombre}`}
+                        className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white"
+                      >
+                        <Edit2 size={15} aria-hidden="true" />
                       </button>
-                      <button onClick={() => setDeleteId(p.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500">
-                        <Trash2 size={15} />
+                      <button
+                        onClick={() => setDeleteId(p.id)}
+                        aria-label={`Eliminar ${p.nombre}`}
+                        className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500"
+                      >
+                        <Trash2 size={15} aria-hidden="true" />
                       </button>
                     </div>
                   </td>
@@ -359,16 +400,16 @@ export default function ModuleB() {
         </div>
         {filtered.length > 0 && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-[#303440]">
-            <span className="text-xs text-zinc-500 dark:text-[#8D96A5]">
+            <span className="text-xs text-zinc-500 dark:text-[#8D96A5]" aria-live="polite">
               Mostrando {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)} a {Math.min(page * PAGE_SIZE, filtered.length)} de {filtered.length} resultados
             </span>
-            <div className="flex items-center gap-1">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Prev</button>
+            <nav aria-label="Paginación de productos" className="flex items-center gap-1">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} aria-label="Página anterior" className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Prev</button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-                <button key={n} onClick={() => setPage(n)} className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${n === page ? 'bg-[#E37A33] text-white border-[#E37A33]' : 'border-zinc-200 dark:border-[#303440] hover:bg-zinc-50 dark:hover:bg-[#242730]'}`}>{n}</button>
+                <button key={n} onClick={() => setPage(n)} aria-label={`Ir a página ${n}`} aria-current={n === page ? 'page' : undefined} className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${n === page ? 'bg-[#E37A33] text-white border-[#E37A33]' : 'border-zinc-200 dark:border-[#303440] hover:bg-zinc-50 dark:hover:bg-[#242730]'}`}>{n}</button>
               ))}
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Next</button>
-            </div>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} aria-label="Página siguiente" className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Next</button>
+            </nav>
           </div>
         )}
       </div>

@@ -38,14 +38,22 @@ const inputCls = "w-full bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:
 
 function ConfirmModal({ onCancel, onConfirm }) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-md w-full shadow-xl">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onKeyDown={e => e.key === 'Escape' && onCancel()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-cliente-title"
+        className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-md w-full shadow-xl"
+      >
         <div className="flex flex-col items-center text-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500">
+          <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500" aria-hidden="true">
             <Trash2 size={24} />
           </div>
           <div>
-            <h3 className="font-semibold text-lg">¿Eliminar cliente?</h3>
+            <h3 id="confirm-cliente-title" className="font-semibold text-lg">¿Eliminar cliente?</h3>
             <p className="text-sm text-zinc-500 dark:text-[#8D96A5] mt-1">Esta acción no se puede deshacer.</p>
           </div>
           <div className="flex gap-3 w-full">
@@ -87,24 +95,25 @@ export function ClienteForm({ clienteId, onClose, onSaveSuccess }) {
     <form onSubmit={handleSave} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-sm font-medium block mb-1.5">Nombre *</label>
-          <input required value={form.nombre} onChange={e => setField('nombre', e.target.value)} placeholder="Ej: Juan" className={inputCls} />
+          <label htmlFor="cli-nombre" className="text-sm font-medium block mb-1.5">Nombre <span aria-hidden="true">*</span></label>
+          <input id="cli-nombre" required value={form.nombre} onChange={e => setField('nombre', e.target.value)} placeholder="Ej: Juan" className={inputCls} />
         </div>
         <div>
-          <label className="text-sm font-medium block mb-1.5">Apellido</label>
-          <input value={form.apellido} onChange={e => setField('apellido', e.target.value)} placeholder="Ej: Pérez" className={inputCls} />
+          <label htmlFor="cli-apellido" className="text-sm font-medium block mb-1.5">Apellido</label>
+          <input id="cli-apellido" value={form.apellido} onChange={e => setField('apellido', e.target.value)} placeholder="Ej: Pérez" className={inputCls} />
         </div>
         <div>
-          <label className="text-sm font-medium block mb-1.5">Teléfono *</label>
-          <input required value={form.telefono} onChange={e => setField('telefono', e.target.value)} placeholder="Ej: 555-1234" className={inputCls} />
+          <label htmlFor="cli-telefono" className="text-sm font-medium block mb-1.5">Teléfono <span aria-hidden="true">*</span></label>
+          <input id="cli-telefono" required value={form.telefono} onChange={e => setField('telefono', e.target.value)} placeholder="Ej: 555-1234" className={inputCls} />
         </div>
         <div>
-          <label className="text-sm font-medium block mb-1.5">Email</label>
-          <input type="email" value={form.email} onChange={e => setField('email', e.target.value)} placeholder="Ej: juan@ejemplo.com" className={inputCls} />
+          <label htmlFor="cli-email" className="text-sm font-medium block mb-1.5">Email</label>
+          <input id="cli-email" type="email" value={form.email} onChange={e => setField('email', e.target.value)} placeholder="Ej: juan@ejemplo.com" className={inputCls} />
         </div>
         <div className="sm:col-span-2">
-          <label className="text-sm font-medium block mb-1.5">Dirección</label>
+          <label htmlFor="cli-direccion" className="text-sm font-medium block mb-1.5">Dirección</label>
           <textarea
+            id="cli-direccion"
             value={form.direccion}
             onChange={e => setField('direccion', e.target.value)}
             placeholder="Ej: Calle Principal 123"
@@ -126,13 +135,26 @@ export function ClienteForm({ clienteId, onClose, onSaveSuccess }) {
 }
 
 function ClienteModal({ clienteId, onClose }) {
+  const title = clienteId ? 'Editar cliente' : 'Nuevo cliente'
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl shadow-xl w-full max-w-lg">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cliente-modal-title"
+        className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl shadow-xl w-full max-w-lg"
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-[#303440]">
-          <h2 className="font-semibold text-base">{clienteId ? 'Editar cliente' : 'Nuevo cliente'}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-400 hover:text-zinc-600">
-            <X size={18} />
+          <h2 id="cliente-modal-title" className="font-semibold text-base">{title}</h2>
+          <button
+            onClick={onClose}
+            aria-label="Cerrar modal"
+            className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-400 hover:text-zinc-600"
+          >
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
         <div className="px-6 py-5">
@@ -186,13 +208,14 @@ export default function ModuleC() {
           <p className="text-sm text-zinc-500 dark:text-[#8D96A5]">Directorio y gestión de contactos</p>
         </div>
         <button onClick={() => setModal('new')} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors">
-          <Plus size={16} /> Crear Cliente
+          <Plus size={16} aria-hidden="true" /> Crear Cliente
         </button>
       </div>
 
       <div className="relative">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
         <input
+          aria-label="Buscar clientes"
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1) }}
           placeholder="Buscar por nombre, apellido o teléfono..."
@@ -206,7 +229,7 @@ export default function ModuleC() {
             <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440]">
               <tr>
                 {['#', 'Nombre', 'Teléfono', 'Email', 'Dirección', 'Acciones'].map(h => (
-                  <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
+                  <th key={h} scope="col" className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -214,7 +237,7 @@ export default function ModuleC() {
               {paged.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-zinc-500 dark:text-[#8D96A5]">
-                    <Users size={32} className="mx-auto opacity-40 mb-2" />
+                    <Users size={32} className="mx-auto opacity-40 mb-2" aria-hidden="true" />
                     <p className="font-medium">No hay clientes registrados</p>
                   </td>
                 </tr>
@@ -227,11 +250,19 @@ export default function ModuleC() {
                   <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5] max-w-50 truncate">{c.direccion || '—'}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setModal(c.id)} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white">
-                        <Edit2 size={15} />
+                      <button
+                        onClick={() => setModal(c.id)}
+                        aria-label={`Editar ${c.nombre} ${c.apellido}`}
+                        className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white"
+                      >
+                        <Edit2 size={15} aria-hidden="true" />
                       </button>
-                      <button onClick={() => setDeleteId(c.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500">
-                        <Trash2 size={15} />
+                      <button
+                        onClick={() => setDeleteId(c.id)}
+                        aria-label={`Eliminar ${c.nombre} ${c.apellido}`}
+                        className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500"
+                      >
+                        <Trash2 size={15} aria-hidden="true" />
                       </button>
                     </div>
                   </td>
@@ -242,16 +273,16 @@ export default function ModuleC() {
         </div>
         {filtered.length > 0 && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-[#303440]">
-            <span className="text-xs text-zinc-500 dark:text-[#8D96A5]">
+            <span className="text-xs text-zinc-500 dark:text-[#8D96A5]" aria-live="polite">
               Mostrando {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)} a {Math.min(page * PAGE_SIZE, filtered.length)} de {filtered.length} resultados
             </span>
-            <div className="flex items-center gap-1">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Prev</button>
+            <nav aria-label="Paginación de clientes" className="flex items-center gap-1">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} aria-label="Página anterior" className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Prev</button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-                <button key={n} onClick={() => setPage(n)} className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${n === page ? 'bg-[#E37A33] text-white border-[#E37A33]' : 'border-zinc-200 dark:border-[#303440] hover:bg-zinc-50 dark:hover:bg-[#242730]'}`}>{n}</button>
+                <button key={n} onClick={() => setPage(n)} aria-label={`Ir a página ${n}`} aria-current={n === page ? 'page' : undefined} className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${n === page ? 'bg-[#E37A33] text-white border-[#E37A33]' : 'border-zinc-200 dark:border-[#303440] hover:bg-zinc-50 dark:hover:bg-[#242730]'}`}>{n}</button>
               ))}
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Next</button>
-            </div>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} aria-label="Página siguiente" className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-[#303440] disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">Next</button>
+            </nav>
           </div>
         )}
       </div>

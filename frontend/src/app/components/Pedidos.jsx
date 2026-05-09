@@ -76,14 +76,22 @@ const pagoBadge = {
 // --- Confirm Modal ---
 function ConfirmModal({ onCancel, onConfirm }) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-md w-full shadow-xl">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onKeyDown={e => e.key === 'Escape' && onCancel()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-pedido-title"
+        className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-md w-full shadow-xl"
+      >
         <div className="flex flex-col items-center text-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500">
+          <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500" aria-hidden="true">
             <Trash2 size={24} />
           </div>
           <div>
-            <h3 className="font-semibold text-lg">¿Eliminar pedido?</h3>
+            <h3 id="confirm-pedido-title" className="font-semibold text-lg">¿Eliminar pedido?</h3>
             <p className="text-sm text-zinc-500 dark:text-[#8D96A5] mt-1">Esta acción no se puede deshacer.</p>
           </div>
           <div className="flex gap-3 w-full">
@@ -100,34 +108,45 @@ function ConfirmModal({ onCancel, onConfirm }) {
 const STEPS = ['Cliente', 'Carrito', 'Fecha', 'Pago', 'Confirmar']
 
 function Stepper({ step }) {
+  const pct = ((step - 1) / 4) * 100
   return (
-    <div className="relative flex items-center justify-between px-4 py-6">
-      <div className="absolute left-8 right-8 top-[2.35rem] h-0.5 bg-zinc-200 dark:bg-[#303440]">
-        <div
-          className="h-full bg-[#E37A33] transition-all duration-500"
-          style={{ width: `${((step - 1) / 4) * 100}%` }}
-        />
-      </div>
-      {STEPS.map((label, i) => {
-        const n = i + 1
-        const done = n < step
-        const active = n === step
-        return (
-          <div key={label} className="relative flex flex-col items-center gap-2 z-10">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-              active ? 'bg-[#E37A33] text-white shadow-md' :
-              done   ? 'bg-[#E37A33] text-white' :
-              'border-2 border-zinc-300 dark:border-[#303440] bg-white dark:bg-[#1A1D24] text-zinc-400'
-            }`}>
-              {done ? <Check size={16} strokeWidth={2.5} /> : n}
-            </div>
-            <span className={`text-[10px] font-semibold uppercase tracking-wide hidden sm:block ${
-              active ? 'text-[#E37A33]' : 'text-zinc-400 dark:text-[#8D96A5]'
-            }`}>{label}</span>
-          </div>
-        )
-      })}
-    </div>
+    <nav aria-label="Pasos del pedido">
+      <ol className="relative flex items-center justify-between px-4 py-6">
+        <div className="absolute left-8 right-8 top-[2.35rem] h-0.5 bg-zinc-200 dark:bg-[#303440]" aria-hidden="true">
+          <div
+            className="h-full bg-[#E37A33] transition-all duration-500"
+            role="progressbar"
+            aria-valuenow={step}
+            aria-valuemin={1}
+            aria-valuemax={STEPS.length}
+            aria-label={`Paso ${step} de ${STEPS.length}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        {STEPS.map((label, i) => {
+          const n = i + 1
+          const done = n < step
+          const active = n === step
+          return (
+            <li key={label} className="relative flex flex-col items-center gap-2 z-10" aria-current={active ? 'step' : undefined}>
+              <div
+                aria-hidden="true"
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+                  active ? 'bg-[#E37A33] text-white shadow-md' :
+                  done   ? 'bg-[#E37A33] text-white' :
+                  'border-2 border-zinc-300 dark:border-[#303440] bg-white dark:bg-[#1A1D24] text-zinc-400'
+                }`}
+              >
+                {done ? <Check size={16} strokeWidth={2.5} /> : n}
+              </div>
+              <span className={`text-[10px] font-semibold uppercase tracking-wide hidden sm:block ${
+                active ? 'text-[#E37A33]' : 'text-zinc-400 dark:text-[#8D96A5]'
+              }`}>{label}</span>
+            </li>
+          )
+        })}
+      </ol>
+    </nav>
   )
 }
 
@@ -165,9 +184,9 @@ function PedidoDetalle({ pedido, onClose }) {
             <table className="w-full text-sm">
               <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440]">
                 <tr>
-                  <th className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">Producto</th>
-                  <th className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-center">Cantidad</th>
-                  <th className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-right">Subtotal</th>
+                  <th scope="col" className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">Producto</th>
+                  <th scope="col" className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-center">Cantidad</th>
+                  <th scope="col" className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-right">Subtotal</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-[#303440]/50">
@@ -417,8 +436,8 @@ function PedidoForm({ pedidoId, onClose }) {
 
         {/* Error */}
         {error && (
-          <div className="mx-6 mb-2 flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm shrink-0">
-            <AlertCircle size={16} className="shrink-0" /> {error}
+          <div role="alert" className="mx-6 mb-2 flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm shrink-0">
+            <AlertCircle size={16} className="shrink-0" aria-hidden="true" /> {error}
           </div>
         )}
 
@@ -541,9 +560,9 @@ function PedidoForm({ pedidoId, onClose }) {
                             <p className="text-xs text-zinc-400">{fmt(item.precio_unitario)} × {item.cantidad} = {fmt(item.precio_unitario * item.cantidad)}</p>
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
-                            <button onClick={() => changeQty(item.producto_id, -1)} className="w-6 h-6 rounded-full border border-zinc-200 dark:border-[#303440] flex items-center justify-center text-xs hover:bg-zinc-100 dark:hover:bg-[#242730]">−</button>
-                            <span className="w-5 text-center text-sm">{item.cantidad}</span>
-                            <button onClick={() => changeQty(item.producto_id, 1)} className="w-6 h-6 rounded-full bg-[#E37A33] text-white flex items-center justify-center text-xs hover:bg-[#CC6824]">+</button>
+                            <button onClick={() => changeQty(item.producto_id, -1)} aria-label={`Reducir cantidad de ${prod?.nombre}`} className="w-6 h-6 rounded-full border border-zinc-200 dark:border-[#303440] flex items-center justify-center text-xs hover:bg-zinc-100 dark:hover:bg-[#242730]" aria-hidden="false">−</button>
+                            <span className="w-5 text-center text-sm" aria-live="polite" aria-label={`Cantidad: ${item.cantidad}`}>{item.cantidad}</span>
+                            <button onClick={() => changeQty(item.producto_id, 1)} aria-label={`Aumentar cantidad de ${prod?.nombre}`} className="w-6 h-6 rounded-full bg-[#E37A33] text-white flex items-center justify-center text-xs hover:bg-[#CC6824]">+</button>
                           </div>
                         </div>
                       )
@@ -562,8 +581,9 @@ function PedidoForm({ pedidoId, onClose }) {
           {step === 3 && (
             <div className="space-y-4 w-full">
               <div>
-                <label className="text-sm font-medium block mb-1.5">Fecha de entrega *</label>
+                <label htmlFor="pedido-fecha" className="text-sm font-medium block mb-1.5">Fecha de entrega <span aria-hidden="true">*</span></label>
                 <input
+                  id="pedido-fecha"
                   type="date"
                   min={today}
                   value={fechaEntrega}
@@ -572,8 +592,9 @@ function PedidoForm({ pedidoId, onClose }) {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium block mb-1.5">Notas adicionales</label>
+                <label htmlFor="pedido-notas" className="text-sm font-medium block mb-1.5">Notas adicionales</label>
                 <textarea
+                  id="pedido-notas"
                   value={notas}
                   onChange={e => setNotas(e.target.value)}
                   rows={3}
@@ -799,6 +820,7 @@ export default function ModuleD() {
       <div className="relative">
         <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
         <input
+          aria-label="Buscar pedidos"
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1) }}
           placeholder="Buscar por ID, cliente o estado..."
@@ -812,7 +834,7 @@ export default function ModuleD() {
             <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440]">
               <tr>
                 {['ID', 'Cliente', 'Fecha Registro', 'Fecha de Entrega', 'Estado', 'Monto', 'Acciones'].map(h => (
-                  <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
+                  <th key={h} scope="col" className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -843,22 +865,26 @@ export default function ModuleD() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => { setDetailId(p.id); setView('detail') }}
+                          aria-label={`Ver detalle del pedido #${String(p.id).padStart(4, '0')}`}
                           className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white"
                         >
-                          <Eye size={15} />
+                          <Eye size={15} aria-hidden="true" />
                         </button>
                         <button
                           onClick={() => { setEditId(p.id); setView('form') }}
                           disabled={p.estado_pedido === 'Entregado' || p.estado_pedido === 'Cancelado'}
+                          aria-label={`Editar pedido #${String(p.id).padStart(4, '0')}`}
+                          aria-disabled={p.estado_pedido === 'Entregado' || p.estado_pedido === 'Cancelado'}
                           className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
                         >
-                          <Edit2 size={15} />
+                          <Edit2 size={15} aria-hidden="true" />
                         </button>
                         <button
                           onClick={() => setDeleteId(p.id)}
+                          aria-label={`Eliminar pedido #${String(p.id).padStart(4, '0')}`}
                           className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500"
                         >
-                          <Trash2 size={15} />
+                          <Trash2 size={15} aria-hidden="true" />
                         </button>
                       </div>
                     </td>

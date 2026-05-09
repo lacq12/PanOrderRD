@@ -13,7 +13,7 @@ function getNotifications(pedidos, productos) {
       if (p.estado_pago === 'Pendiente') {
         notifs.push({
           id: `pago-${p.id}`,
-          icon: <AlertTriangle size={15} />,
+          icon: <AlertTriangle size={15} aria-hidden="true" />,
           color: 'text-red-500 bg-red-500/10',
           text: `Pedido #${String(p.id).padStart(4, '0')} sin pago registrado`,
         })
@@ -24,7 +24,7 @@ function getNotifications(pedidos, productos) {
         if (entrega >= now && entrega <= in2Days) {
           notifs.push({
             id: `entrega-${p.id}`,
-            icon: <Clock size={15} />,
+            icon: <Clock size={15} aria-hidden="true" />,
             color: 'text-orange-500 bg-orange-500/10',
             text: `Pedido #${String(p.id).padStart(4, '0')} entrega en menos de 2 días`,
           })
@@ -37,7 +37,7 @@ function getNotifications(pedidos, productos) {
     .forEach(p => {
       notifs.push({
         id: `stock-${p.id}`,
-        icon: <Package size={15} />,
+        icon: <Package size={15} aria-hidden="true" />,
         color: 'text-zinc-500 bg-zinc-500/10',
         text: `"${p.nombre}" sin stock disponible`,
       })
@@ -59,12 +59,20 @@ export default function NotificationsPanel({ isOpen, onClose }) {
   if (!isOpen) return null
 
   return (
-    <div className="absolute right-0 top-12 w-80 bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl shadow-lg z-50">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Panel de notificaciones"
+      className="absolute right-0 top-12 w-80 bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl shadow-lg z-50"
+    >
       <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-[#303440]">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm">Notificaciones</span>
+          <span className="font-semibold text-sm" id="notif-panel-title">Notificaciones</span>
           {notifs.length > 0 && (
-            <span className="text-xs bg-[#E37A33] text-white rounded-full px-1.5 py-0.5 font-medium leading-none">
+            <span
+              aria-label={`${notifs.length} notificaciones sin revisar`}
+              className="text-xs bg-[#E37A33] text-white rounded-full px-1.5 py-0.5 font-medium leading-none"
+            >
               {notifs.length}
             </span>
           )}
@@ -73,34 +81,45 @@ export default function NotificationsPanel({ isOpen, onClose }) {
           {notifs.length > 1 && (
             <button
               onClick={dismissAll}
+              aria-label="Limpiar todas las notificaciones"
               className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 px-2 py-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors"
             >
               Limpiar todo
             </button>
           )}
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730]">
-            <X size={16} />
+          <button
+            onClick={onClose}
+            aria-label="Cerrar panel de notificaciones"
+            className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730]"
+          >
+            <X size={16} aria-hidden="true" />
           </button>
         </div>
       </div>
 
       {notifs.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 px-4 text-center gap-2">
-          <Bell size={28} className="text-zinc-300 dark:text-[#303440]" />
+          <Bell size={28} className="text-zinc-300 dark:text-[#303440]" aria-hidden="true" />
           <p className="text-sm font-medium text-zinc-500 dark:text-[#8D96A5]">Sin notificaciones</p>
           <p className="text-xs text-zinc-400 dark:text-[#8D96A5]/60">Aquí aparecerán tus alertas cuando estén disponibles.</p>
         </div>
       ) : (
-        <ul className="divide-y divide-zinc-100 dark:divide-[#303440]/50 max-h-72 overflow-y-auto">
+        <ul
+          role="log"
+          aria-live="polite"
+          aria-label="Lista de alertas del sistema"
+          className="divide-y divide-zinc-100 dark:divide-[#303440]/50 max-h-72 overflow-y-auto"
+        >
           {notifs.map(n => (
             <li key={n.id} className="flex items-start gap-3 px-4 py-3">
               <span className={`mt-0.5 p-1.5 rounded-lg shrink-0 ${n.color}`}>{n.icon}</span>
               <p className="flex-1 text-xs text-zinc-700 dark:text-zinc-300 leading-snug">{n.text}</p>
               <button
                 onClick={() => dismiss(n.id)}
+                aria-label={`Descartar: ${n.text}`}
                 className="shrink-0 p-1 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors"
               >
-                <X size={12} />
+                <X size={12} aria-hidden="true" />
               </button>
             </li>
           ))}

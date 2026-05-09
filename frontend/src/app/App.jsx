@@ -22,11 +22,11 @@ const CAROUSEL_IMAGES = [
 ]
 
 const sidebarLinks = [
-  { icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-  { icon: <Package size={20} />,         label: 'Productos' },
-  { icon: <Users size={20} />,           label: 'Clientes' },
-  { icon: <ShoppingCart size={20} />,    label: 'Pedidos' },
-  { icon: <Ruler size={20} />,           label: 'Unidades' },
+  { icon: <LayoutDashboard size={20} aria-hidden="true" />, label: 'Dashboard' },
+  { icon: <Package size={20} aria-hidden="true" />,         label: 'Productos' },
+  { icon: <Users size={20} aria-hidden="true" />,           label: 'Clientes' },
+  { icon: <ShoppingCart size={20} aria-hidden="true" />,    label: 'Pedidos' },
+  { icon: <Ruler size={20} aria-hidden="true" />,           label: 'Unidades' },
 ]
 
 export default function App() {
@@ -122,27 +122,48 @@ export default function App() {
   if (view === 'dashboard') {
     return (
       <div className="relative flex w-full h-screen overflow-hidden bg-white dark:bg-[#1A1D24] text-zinc-900 dark:text-white">
+
+        {/* Skip link */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:px-4 focus:py-2 focus:bg-[#E37A33] focus:text-white focus:rounded-xl focus:text-sm focus:font-medium"
+        >
+          Saltar al contenido principal
+        </a>
+
         {/* Overlay mobile sidebar */}
         {sidebarOpen && (
-          <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
         )}
 
-          {/* ── Sidebar (es el fondo/base del contenedor) ── */}
-          <aside className={`
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            fixed lg:static inset-y-0 left-0 z-30
-            flex flex-col shrink-0
-            bg-zinc-100 dark:bg-[#1A1D24]
-            border-r border-zinc-200/60 dark:border-white/5
-            transition-all duration-300
-            ${sidebarCollapsed ? 'w-20' : 'w-64'}
-          `}>
+          {/* ── Sidebar ── */}
+          <aside
+            aria-label="Navegación principal"
+            className={`
+              ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+              fixed lg:static inset-y-0 left-0 z-30
+              flex flex-col shrink-0
+              bg-zinc-100 dark:bg-[#1A1D24]
+              border-r border-zinc-200/60 dark:border-white/5
+              transition-all duration-300
+              ${sidebarCollapsed ? 'w-20' : 'w-64'}
+            `}
+          >
             {/* Botón colapso — desktop */}
             <button
               onClick={() => setSidebarCollapsed(v => !v)}
+              aria-label={sidebarCollapsed ? 'Expandir menú lateral' : 'Colapsar menú lateral'}
+              aria-expanded={!sidebarCollapsed}
               className="hidden lg:flex absolute -right-3.5 top-20 w-7 h-7 rounded-full bg-white dark:bg-[#2D3142] border border-zinc-200 dark:border-white/10 items-center justify-center shadow-sm z-10 hover:bg-zinc-50 dark:hover:bg-[#363c55] transition-colors"
             >
-              {sidebarCollapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+              {sidebarCollapsed
+                ? <ChevronRight size={13} aria-hidden="true" />
+                : <ChevronLeft size={13} aria-hidden="true" />
+              }
             </button>
 
             {/* Logo */}
@@ -156,14 +177,15 @@ export default function App() {
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5">
+            <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5" aria-label="Módulos">
               {sidebarLinks.map(({ icon, label }) => {
                 const active = activeTab === label
                 return (
                   <button
                     key={label}
-                    title={label}
                     onClick={() => { setActiveTab(label); setSidebarOpen(false) }}
+                    aria-current={active ? 'page' : undefined}
+                    aria-label={sidebarCollapsed ? label : undefined}
                     className={`
                       w-full flex items-center gap-3 rounded-xl transition-all text-sm font-medium
                       ${sidebarCollapsed ? 'justify-center p-3' : 'px-3 py-2.5'}
@@ -183,8 +205,9 @@ export default function App() {
             {/* Bottom */}
             <div className="px-2 pb-4 border-t border-zinc-200/60 dark:border-white/5 pt-3 space-y-0.5">
               <button
-                title="Configuración"
                 onClick={() => { setActiveTab('Configuración'); setSidebarOpen(false) }}
+                aria-current={activeTab === 'Configuración' ? 'page' : undefined}
+                aria-label={sidebarCollapsed ? 'Configuración' : undefined}
                 className={`
                   w-full flex items-center gap-3 rounded-xl transition-all text-sm font-medium
                   ${sidebarCollapsed ? 'justify-center p-3' : 'px-3 py-2.5'}
@@ -194,33 +217,41 @@ export default function App() {
                   }
                 `}
               >
-                <Settings size={20} />
+                <Settings size={20} aria-hidden="true" />
                 {!sidebarCollapsed && <span>Configuración</span>}
               </button>
               <button
-                title="Cerrar sesión"
                 onClick={() => setLogoutConfirm(true)}
+                aria-label={sidebarCollapsed ? 'Cerrar sesión' : undefined}
                 className={`
                   w-full flex items-center gap-3 rounded-xl transition-all text-sm font-medium
                   text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10
                   ${sidebarCollapsed ? 'justify-center p-3' : 'px-3 py-2.5'}
                 `}
               >
-                <LogOut size={20} />
+                <LogOut size={20} aria-hidden="true" />
                 {!sidebarCollapsed && <span>Cerrar sesión</span>}
               </button>
             </div>
           </aside>
 
           {logoutConfirm && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <div
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              onKeyDown={e => e.key === 'Escape' && setLogoutConfirm(false)}
+            >
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="logout-modal-title"
+                className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-sm w-full shadow-xl"
+              >
                 <div className="flex flex-col items-center text-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500">
+                  <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-500" aria-hidden="true">
                     <LogOut size={24} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">¿Cerrar sesión?</h3>
+                    <h3 id="logout-modal-title" className="font-semibold text-lg">¿Cerrar sesión?</h3>
                     <p className="text-sm text-zinc-500 dark:text-[#8D96A5] mt-1">Se cerrará tu sesión actual.</p>
                   </div>
                   <div className="flex gap-3 w-full">
@@ -251,38 +282,45 @@ export default function App() {
                   <button
                     className="lg:hidden p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors"
                     onClick={() => setSidebarOpen(v => !v)}
+                    aria-label="Abrir menú de navegación"
+                    aria-expanded={sidebarOpen}
                   >
-                    <Menu size={18} />
+                    <Menu size={18} aria-hidden="true" />
                   </button>
-                  <span className="font-semibold text-sm">{activeTab}</span>
+                  <span className="font-semibold text-sm" aria-live="polite">{activeTab}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => setIsDark(v => !v)}
+                    aria-pressed={isDark}
+                    aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
                     className="p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors text-zinc-500 dark:text-zinc-400"
                   >
-                    {isDark ? <Sun size={16} /> : <Moon size={16} />}
+                    {isDark ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
                   </button>
                   <div className="relative">
                     <button
                       onClick={() => setNotifOpen(v => !v)}
+                      aria-label={hasNotifs ? 'Notificaciones — hay alertas pendientes' : 'Notificaciones — sin alertas'}
+                      aria-expanded={notifOpen}
+                      aria-haspopup="true"
                       className="p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors text-zinc-500 dark:text-zinc-400 relative"
                     >
-                      <Bell size={16} />
+                      <Bell size={16} aria-hidden="true" />
                       {hasNotifs && (
-                        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#E37A33] rounded-full" />
+                        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#E37A33] rounded-full" aria-hidden="true" />
                       )}
                     </button>
                     <NotificationsPanel isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
                   </div>
-                  <div className="w-8 h-8 rounded-xl bg-[#E37A33]/10 text-[#E37A33] flex items-center justify-center text-xs font-bold ml-1">
+                  <div className="w-8 h-8 rounded-xl bg-[#E37A33]/10 text-[#E37A33] flex items-center justify-center text-xs font-bold ml-1" aria-label="Perfil de usuario">
                     DA
                   </div>
                 </div>
               </header>
 
               {/* Contenido principal */}
-              <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <main id="main-content" className="flex-1 overflow-y-auto p-4 sm:p-6">
                 {renderContent()}
               </main>
           </div>
@@ -307,18 +345,20 @@ export default function App() {
           {/* Toggle mobile */}
           <button
             onClick={() => setIsDark(v => !v)}
+            aria-pressed={isDark}
+            aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
             className="lg:hidden absolute top-4 right-4 sm:top-6 sm:right-6 p-2.5 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/20 z-50 transition-colors hover:bg-black/60"
           >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {isDark ? <Sun className="w-5 h-5" aria-hidden="true" /> : <Moon className="w-5 h-5" aria-hidden="true" />}
           </button>
 
           {/* Carousel desktop */}
-          <div className="absolute inset-0 hidden lg:block overflow-hidden">
+          <div className="absolute inset-0 hidden lg:block overflow-hidden" aria-hidden="true">
             {CAROUSEL_IMAGES.map((src, i) => (
               <img
                 key={src}
                 src={src}
-                alt="Panadería Hermanos Paca"
+                alt=""
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === carouselIdx ? 'opacity-100' : 'opacity-0'}`}
               />
             ))}
@@ -328,20 +368,27 @@ export default function App() {
               </div>
             </div>
             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent z-10" />
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20" role="tablist" aria-label="Imágenes de la panadería">
               {CAROUSEL_IMAGES.map((_, i) => (
-                <button key={i} onClick={() => setCarouselIdx(i)} className={`w-2 h-2 rounded-full transition-all ${i === carouselIdx ? 'bg-white w-5' : 'bg-white/40'}`} />
+                <button
+                  key={i}
+                  role="tab"
+                  aria-selected={i === carouselIdx}
+                  aria-label={`Imagen ${i + 1} de ${CAROUSEL_IMAGES.length}`}
+                  onClick={() => setCarouselIdx(i)}
+                  className={`w-2 h-2 rounded-full transition-all ${i === carouselIdx ? 'bg-white w-5' : 'bg-white/40'}`}
+                />
               ))}
             </div>
           </div>
 
           {/* Carousel mobile */}
-          <div className="absolute inset-0 lg:hidden overflow-hidden">
+          <div className="absolute inset-0 lg:hidden overflow-hidden" aria-hidden="true">
             {CAROUSEL_IMAGES.map((src, i) => (
               <img
                 key={src}
                 src={src}
-                alt="Panadería Hermanos Paca"
+                alt=""
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === carouselIdx ? 'opacity-100' : 'opacity-0'}`}
               />
             ))}
@@ -349,8 +396,8 @@ export default function App() {
           </div>
 
           {/* Título overlay mobile */}
-          <div className="relative z-20 lg:hidden w-full text-white pb-2">
-            <h1 className="text-[2rem] sm:text-[2.5rem] font-semibold tracking-tight leading-none mb-2">{title}</h1>
+          <div className="relative z-20 lg:hidden w-full text-white pb-2" aria-hidden="true">
+            <p className="text-[2rem] sm:text-[2.5rem] font-semibold tracking-tight leading-none mb-2">{title}</p>
             <p className="text-zinc-200 text-sm sm:text-base font-medium">{sub}</p>
           </div>
         </div>
@@ -361,9 +408,11 @@ export default function App() {
           {/* Toggle desktop */}
           <button
             onClick={() => setIsDark(v => !v)}
+            aria-pressed={isDark}
+            aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
             className="hidden lg:flex absolute top-6 right-6 p-3 rounded-full hover:bg-zinc-100 dark:hover:bg-[#242730]/50 border border-transparent dark:border-[#303440] transition-colors text-zinc-500 dark:text-[#8D96A5] z-20"
           >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {isDark ? <Sun className="w-5 h-5" aria-hidden="true" /> : <Moon className="w-5 h-5" aria-hidden="true" />}
           </button>
 
           <div className="w-full max-w-130 mx-auto">
@@ -371,27 +420,31 @@ export default function App() {
             {/* Botón volver */}
             <button
               onClick={() => setView('login')}
+              aria-label="Volver al inicio de sesión"
               className={`flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-700 dark:hover:text-white mb-8 transition-colors w-fit ${view === 'login' ? 'opacity-0 pointer-events-none' : ''}`}
             >
-              <ArrowLeft size={15} /> Volver
+              <ArrowLeft size={15} aria-hidden="true" /> Volver
             </button>
 
             {/* Título desktop */}
-            <div className="hidden lg:flex lg:flex-col gap-1 mb-10">
-              <h1 style={{ fontSize: '56px', fontWeight: 700, lineHeight: '56px', letterSpacing: '-3.4px', fontFamily: 'Inter, sans-serif' }} className="text-[#18181B] dark:text-white">{title}</h1>
+            <div className="hidden lg:flex lg:flex-col gap-1 mb-10" aria-hidden="true">
+              <p style={{ fontSize: '56px', fontWeight: 700, lineHeight: '56px', letterSpacing: '-3.4px', fontFamily: 'Inter, sans-serif' }} className="text-[#18181B] dark:text-white">{title}</p>
               <p className="text-base text-zinc-500 dark:text-[#8D96A5]">{sub}</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" aria-label={viewText[view]?.title || 'Iniciar sesión'}>
               {/* Email */}
               {view !== 'verify-otp' && (
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Correo electrónico</label>
+                  <label htmlFor="login-email" className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Correo electrónico</label>
                   <input
+                    id="login-email"
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="ejemplo@correo.com"
+                    autoComplete="email"
+                    required
                     className={inputLogin}
                   />
                 </div>
@@ -399,8 +452,8 @@ export default function App() {
 
               {/* OTP */}
               {view === 'verify-otp' && (
-                <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Código de verificación</label>
+                <fieldset className="space-y-2.5">
+                  <legend className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Código de verificación</legend>
                   <p className="text-xs text-zinc-400 dark:text-[#8D96A5] ml-1">Enviado a {email || 'tu correo'}</p>
                   <div className="flex gap-2 sm:gap-3 justify-between pt-2">
                     {otpCode.map((digit, idx) => (
@@ -411,6 +464,7 @@ export default function App() {
                         inputMode="numeric"
                         maxLength={1}
                         value={digit}
+                        aria-label={`Dígito ${idx + 1} de 6`}
                         onChange={e => {
                           const v = e.target.value.replace(/\D/g, '').slice(-1)
                           const next = [...otpCode]
@@ -442,25 +496,34 @@ export default function App() {
                       Reenviar código
                     </button>
                   </div>
-                </div>
+                </fieldset>
               )}
 
               {/* Password */}
               {(view === 'login' || view === 'reset-password') && (
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">
+                  <label htmlFor="login-password" className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">
                     {view === 'reset-password' ? 'Nueva contraseña' : 'Contraseña'}
                   </label>
                   <div className="relative flex items-center">
                     <input
+                      id="login-password"
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       placeholder="Contraseña"
+                      autoComplete={view === 'reset-password' ? 'new-password' : 'current-password'}
+                      required
                       className={`${inputLogin} pr-14`}
                     />
-                    <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-6 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(v => !v)}
+                      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                      aria-pressed={showPassword}
+                      className="absolute right-6 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
                     </button>
                   </div>
                   {view === 'login' && (
@@ -476,33 +539,42 @@ export default function App() {
               {/* Confirm password */}
               {view === 'reset-password' && (
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Confirmar contraseña</label>
+                  <label htmlFor="login-confirm-password" className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Confirmar contraseña</label>
                   <div className="relative flex items-center">
                     <input
+                      id="login-confirm-password"
                       type={showConfirmPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={e => setConfirmPassword(e.target.value)}
                       placeholder="Confirmar contraseña"
+                      autoComplete="new-password"
+                      required
                       className={`${inputLogin} pr-14`}
                     />
-                    <button type="button" onClick={() => setShowConfirmPassword(v => !v)} className="absolute right-6 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">
-                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(v => !v)}
+                      aria-label={showConfirmPassword ? 'Ocultar confirmación de contraseña' : 'Mostrar confirmación de contraseña'}
+                      aria-pressed={showConfirmPassword}
+                      className="absolute right-6 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Forgot password (vista forgot) */}
+              {/* Forgot password */}
               {view === 'forgot-password' && (
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Correo electrónico</label>
+                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-200 ml-1">Correo electrónico</p>
                   <p className="text-xs text-zinc-400 dark:text-[#8D96A5] ml-1">Ya ingresaste tu correo arriba.</p>
                 </div>
               )}
 
-              {/* Error login */}
+              {/* Error */}
               {loginError && (
-                <p className="text-sm text-red-500 text-center">{loginError}</p>
+                <p role="alert" className="text-sm text-red-500 text-center">{loginError}</p>
               )}
 
               {/* CTA */}
@@ -510,10 +582,11 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={submitting}
+                  aria-busy={submitting}
                   className="w-full bg-[#E37A33] hover:bg-[#CC6824] disabled:opacity-80 text-white py-4 rounded-full font-medium text-base transition-colors flex items-center justify-center gap-2"
                 >
                   {submitting && (
-                    <svg className="animate-spin w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
+                    <svg className="animate-spin w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                     </svg>
@@ -530,6 +603,4 @@ export default function App() {
       </div>
     </div>
   )
-
-  
 }
