@@ -93,4 +93,10 @@ export const api = {
 
   deleteUsuario: (id) =>
     request('DELETE', `/usuarios/${id}`),
+
+  // Unidades
+  getUnidades:  ()         => request('GET',    '/unidades'),
+  createUnidad: (data)     => request('POST',   '/unidades', data),
+  updateUnidad: (id, data) => request('PUT',    `/unidades/${id}`, data),
+  deleteUnidad: (id)       => request('DELETE', `/unidades/${id}`),
 };

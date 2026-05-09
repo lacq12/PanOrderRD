@@ -2,13 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import {
   Sun, Moon, Eye, EyeOff, ArrowLeft,
   LayoutDashboard, Package, Users, ShoppingCart,
-  Settings, LogOut, ChevronLeft, ChevronRight, Bell, Menu
+  Settings, LogOut, ChevronLeft, ChevronRight, Bell, Menu, Ruler
 } from 'lucide-react'
 import ModuleA from './ModuleA.jsx'
 import ModuleB from './components/ModuleB.jsx'
 import ModuleC from './components/ModuleC.jsx'
 import ModuleD from './components/ModuleD.jsx'
 import ModuleConfig from './components/ModuleConfig.jsx'
+import ModuleUnidades from './components/ModuleUnidades.jsx'
 import NotificationsPanel from './components/NotificationsPanel.jsx'
 import { api } from '../api.js'
 import { useStore } from '../store.js'
@@ -26,6 +27,7 @@ const sidebarLinks = [
   { icon: <Package size={20} />,         label: 'Productos' },
   { icon: <Users size={20} />,           label: 'Clientes' },
   { icon: <ShoppingCart size={20} />,    label: 'Pedidos' },
+  { icon: <Ruler size={20} />,           label: 'Unidades' },
 ]
 
 export default function App() {
@@ -111,6 +113,7 @@ export default function App() {
       case 'Productos':     return <ModuleB />
       case 'Clientes':      return <ModuleC />
       case 'Pedidos':       return <ModuleD />
+      case 'Unidades':      return <ModuleUnidades />
       case 'Configuración': return <ModuleConfig />
       default:              return <ModuleA />
     }

@@ -33,7 +33,6 @@ function TableSkeleton({ cols }) {
 }
 
 const CATEGORIAS = ['Panes', 'Bollería', 'Pasteles', 'Bebidas', 'Embutidos', 'Otros']
-const UNIDADES = ['kg', 'g', 'L', 'ml', 'unidad']
 const PAGE_SIZE = 8
 
 const inputCls = "w-full bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white placeholder:text-zinc-400"
@@ -72,7 +71,7 @@ function ConfirmModal({ onCancel, onConfirm, error }) {
 }
 
 function ProductoModal({ productoId, onClose }) {
-  const { productos, addProducto, updateProducto } = useStore()
+  const { productos, addProducto, updateProducto, unidades } = useStore()
   const existing = productoId != null ? productos.find(p => p.id === productoId) : null
 
   const [form, setForm] = useState({
@@ -86,7 +85,7 @@ function ProductoModal({ productoId, onClose }) {
   })
 
   const setField = (k, v) => setForm(f => ({ ...f, [k]: v }))
-  const addIngrediente = () => setField('ingredientes', [...form.ingredientes, { nombre: '', cantidad: '', unidad: 'kg' }])
+  const addIngrediente = () => setField('ingredientes', [...form.ingredientes, { nombre: '', cantidad: '', unidad: unidades[0]?.unidad_medida || '' }])
   const removeIngrediente = (i) => setField('ingredientes', form.ingredientes.filter((_, idx) => idx !== i))
   const updateIngrediente = (i, k, v) => setField('ingredientes', form.ingredientes.map((ing, idx) => idx === i ? { ...ing, [k]: v } : ing))
 
@@ -212,6 +211,9 @@ function ProductoModal({ productoId, onClose }) {
                         className={`${inputCls} w-24! shrink-0`}
                       >
                         <option value="">—</option>
+                        {unidades.map(u => (
+                          <option key={u.id} value={u.unidad_medida}>{u.unidad_medida}</option>
+                        ))}
                       </select>
                       <button type="button" onClick={() => removeIngrediente(i)} className="p-2 text-zinc-400 hover:text-red-500 transition-colors shrink-0">
                         <X size={16} />

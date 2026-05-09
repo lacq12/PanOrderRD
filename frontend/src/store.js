@@ -7,17 +7,19 @@ export const useStore = create((set, get) => ({
   pedidos:   [],
   empleados: [],
   usuarios:  [],
+  unidades:  [],
 
   // ── Carga inicial desde la DB ──────────────────────────────────────────────
   loadAll: async () => {
-    const [productos, clientes, pedidos, empleados, usuarios] = await Promise.all([
+    const [productos, clientes, pedidos, empleados, usuarios, unidades] = await Promise.all([
       api.getProductos(),
       api.getClientes(),
       api.getPedidos(),
       api.getEmpleados(),
       api.getUsuarios(),
+      api.getUnidades(),
     ]);
-    set({ productos, clientes, pedidos, empleados, usuarios });
+    set({ productos, clientes, pedidos, empleados, usuarios, unidades });
   },
 
   // ── Productos ──────────────────────────────────────────────────────────────
@@ -95,5 +97,19 @@ export const useStore = create((set, get) => ({
   deleteUsuario: async (id) => {
     await api.deleteUsuario(id);
     set((s) => ({ usuarios: s.usuarios.filter(x => x.id !== id) }));
+  },
+
+  // ── Unidades ───────────────────────────────────────────────────────────────
+  addUnidad: async (u) => {
+    const nuevo = await api.createUnidad(u);
+    set((s) => ({ unidades: [...s.unidades, nuevo] }));
+  },
+  updateUnidad: async (id, u) => {
+    const updated = await api.updateUnidad(id, u);
+    set((s) => ({ unidades: s.unidades.map(x => x.id === id ? updated : x) }));
+  },
+  deleteUnidad: async (id) => {
+    await api.deleteUnidad(id);
+    set((s) => ({ unidades: s.unidades.filter(x => x.id !== id) }));
   },
 }));

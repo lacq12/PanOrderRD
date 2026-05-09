@@ -369,6 +369,63 @@ app.delete('/api/usuarios/:id', auth, async (req, res) => {
   }
 });
 
+// ── Unidades ─────────────────────────────────────────────────────────────────
+app.get('/api/unidades', auth, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM unidades ORDER BY id');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/unidades', auth, async (req, res) => {
+  try {
+    const { descripcion, unidad_medida } = req.body;
+    const { rows } = await pool.query(
+      'INSERT INTO unidades (descripcion, unidad_medida) VALUES ($1, $2) RETURNING *',
+      [descripcion, unidad_medida]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/unidades/:id', auth, async (req, res) => {
+  try {
+    const { descripcion, unidad_medida } = req.body;
+    const { rows } = await pool.query(
+      'UPDATE unidades SET descripcion=$1, unidad_medida=$2 WHERE id=$3 RETURNING *',
+      [descripcion, unidad_medida, req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Unidad no encontrada' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/unidades/:id', auth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT COUNT(*) FROM ingredientes WHERE unidad_id = $1',
+      [req.params.id]
+    );
+    if (parseInt(rows[0].count) > 0) {
+      return res.status(409).json({ error: 'No se puede eliminar: la unidad está en uso por uno o más ingredientes.' });
+    }
+    await pool.query('DELETE FROM unidades WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Start ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Backend corriendo en http://localhost:${PORT}`));
