@@ -70,113 +70,185 @@ app.post('/api/login', async (req, res) => {
 
 // ── Productos ────────────────────────────────────────────────────────────────
 app.get('/api/productos', auth, async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM productos ORDER BY id');
-  res.json(rows);
+  try {
+    const { rows } = await pool.query('SELECT * FROM productos ORDER BY id');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/productos', auth, async (req, res) => {
-  const { nombre, descripcion, precio, stock, categoria, disponible } = req.body;
-  const { rows } = await pool.query(
-    'INSERT INTO productos (nombre, descripcion, precio, stock, categoria, disponible) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-    [nombre, descripcion, precio, stock ?? 0, categoria, disponible ? 1 : 0]
-  );
-  res.status(201).json(rows[0]);
+  try {
+    const { nombre, descripcion, precio, stock, categoria, disponible } = req.body;
+    const { rows } = await pool.query(
+      'INSERT INTO productos (nombre, descripcion, precio, stock, categoria, disponible) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [nombre, descripcion, precio, stock ?? 0, categoria, disponible ? 1 : 0]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.put('/api/productos/:id', auth, async (req, res) => {
-  const { nombre, descripcion, precio, stock, categoria, disponible } = req.body;
-  const { rows } = await pool.query(
-    'UPDATE productos SET nombre=$1, descripcion=$2, precio=$3, stock=$4, categoria=$5, disponible=$6 WHERE id=$7 RETURNING *',
-    [nombre, descripcion, precio, stock, categoria, disponible ? 1 : 0, req.params.id]
-  );
-  res.json(rows[0]);
+  try {
+    const { nombre, descripcion, precio, stock, categoria, disponible } = req.body;
+    const { rows } = await pool.query(
+      'UPDATE productos SET nombre=$1, descripcion=$2, precio=$3, stock=$4, categoria=$5, disponible=$6 WHERE id=$7 RETURNING *',
+      [nombre, descripcion, precio, stock, categoria, disponible ? 1 : 0, req.params.id]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/productos/:id', auth, async (req, res) => {
-  await pool.query('DELETE FROM productos WHERE id = $1', [req.params.id]);
-  res.json({ ok: true });
+  try {
+    const { rows } = await pool.query(
+      'SELECT COUNT(*) FROM detalle_pedido WHERE producto_id = $1',
+      [req.params.id]
+    );
+    if (parseInt(rows[0].count) > 0) {
+      return res.status(409).json({ error: 'No se puede eliminar: el producto está asociado a uno o más pedidos.' });
+    }
+    await pool.query('DELETE FROM productos WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── Clientes ─────────────────────────────────────────────────────────────────
 app.get('/api/clientes', auth, async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM clientes ORDER BY id');
-  res.json(rows);
+  try {
+    const { rows } = await pool.query('SELECT * FROM clientes ORDER BY id');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/clientes', auth, async (req, res) => {
-  const { nombre, apellido, telefono, direccion, email } = req.body;
-  const { rows } = await pool.query(
-    'INSERT INTO clientes (nombre, apellido, telefono, direccion, email) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [nombre, apellido, telefono, direccion, email]
-  );
-  res.status(201).json(rows[0]);
+  try {
+    const { nombre, apellido, telefono, direccion, email } = req.body;
+    const { rows } = await pool.query(
+      'INSERT INTO clientes (nombre, apellido, telefono, direccion, email) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [nombre, apellido, telefono, direccion, email]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.put('/api/clientes/:id', auth, async (req, res) => {
-  const { nombre, apellido, telefono, direccion, email } = req.body;
-  const { rows } = await pool.query(
-    'UPDATE clientes SET nombre=$1, apellido=$2, telefono=$3, direccion=$4, email=$5 WHERE id=$6 RETURNING *',
-    [nombre, apellido, telefono, direccion, email, req.params.id]
-  );
-  res.json(rows[0]);
+  try {
+    const { nombre, apellido, telefono, direccion, email } = req.body;
+    const { rows } = await pool.query(
+      'UPDATE clientes SET nombre=$1, apellido=$2, telefono=$3, direccion=$4, email=$5 WHERE id=$6 RETURNING *',
+      [nombre, apellido, telefono, direccion, email, req.params.id]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/clientes/:id', auth, async (req, res) => {
-  await pool.query('DELETE FROM clientes WHERE id = $1', [req.params.id]);
-  res.json({ ok: true });
+  try {
+    await pool.query('DELETE FROM clientes WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── Empleados ────────────────────────────────────────────────────────────────
 app.get('/api/empleados', auth, async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM empleados ORDER BY id');
-  res.json(rows);
+  try {
+    const { rows } = await pool.query('SELECT * FROM empleados ORDER BY id');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/empleados', auth, async (req, res) => {
-  const { nombre, apellido, cargo, telefono, salario } = req.body;
-  const { rows } = await pool.query(
-    'INSERT INTO empleados (nombre, apellido, cargo, telefono, salario) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [nombre, apellido, cargo, telefono, salario]
-  );
-  res.status(201).json(rows[0]);
+  try {
+    const { nombre, apellido, cargo, telefono, salario } = req.body;
+    const { rows } = await pool.query(
+      'INSERT INTO empleados (nombre, apellido, cargo, telefono, salario) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [nombre, apellido, cargo, telefono, salario]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.put('/api/empleados/:id', auth, async (req, res) => {
-  const { nombre, apellido, cargo, telefono, salario } = req.body;
-  const { rows } = await pool.query(
-    'UPDATE empleados SET nombre=$1, apellido=$2, cargo=$3, telefono=$4, salario=$5 WHERE id=$6 RETURNING *',
-    [nombre, apellido, cargo, telefono, salario, req.params.id]
-  );
-  res.json(rows[0]);
+  try {
+    const { nombre, apellido, cargo, telefono, salario } = req.body;
+    const { rows } = await pool.query(
+      'UPDATE empleados SET nombre=$1, apellido=$2, cargo=$3, telefono=$4, salario=$5 WHERE id=$6 RETURNING *',
+      [nombre, apellido, cargo, telefono, salario, req.params.id]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/empleados/:id', auth, async (req, res) => {
-  await pool.query('DELETE FROM empleados WHERE id = $1', [req.params.id]);
-  res.json({ ok: true });
+  try {
+    await pool.query('DELETE FROM empleados WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── Pedidos ──────────────────────────────────────────────────────────────────
 app.get('/api/pedidos', auth, async (req, res) => {
-  const { rows } = await pool.query(`
-    SELECT p.*, c.nombre AS cliente_nombre, c.apellido AS cliente_apellido,
-           c.telefono AS cliente_telefono
-    FROM pedidos p
-    LEFT JOIN clientes c ON c.id = p.cliente_id
-    ORDER BY p.id
-  `);
-  const ids = rows.map(r => r.id);
-  if (ids.length) {
-    const { rows: detalles } = await pool.query(
-      'SELECT * FROM detalle_pedido WHERE pedido_id = ANY($1)',
-      [ids]
-    );
-    rows.forEach(p => {
-      p.items = detalles.filter(d => d.pedido_id === p.id);
-    });
-  } else {
-    rows.forEach(p => { p.items = []; });
+  try {
+    const { rows } = await pool.query(`
+      SELECT p.*, c.nombre AS cliente_nombre, c.apellido AS cliente_apellido,
+             c.telefono AS cliente_telefono
+      FROM pedidos p
+      LEFT JOIN clientes c ON c.id = p.cliente_id
+      ORDER BY p.id
+    `);
+    const ids = rows.map(r => r.id);
+    if (ids.length) {
+      const { rows: detalles } = await pool.query(
+        'SELECT * FROM detalle_pedido WHERE pedido_id = ANY($1)',
+        [ids]
+      );
+      rows.forEach(p => {
+        p.items = detalles.filter(d => d.pedido_id === p.id);
+      });
+    } else {
+      rows.forEach(p => { p.items = []; });
+    }
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
-  res.json(rows);
 });
 
 app.post('/api/pedidos', auth, async (req, res) => {
@@ -212,57 +284,87 @@ app.post('/api/pedidos', auth, async (req, res) => {
 });
 
 app.put('/api/pedidos/:id', auth, async (req, res) => {
-  const { cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago, estado_pedido } = req.body;
-  const { rows } = await pool.query(
-    'UPDATE pedidos SET cliente_id=$1, empleado_id=$2, fecha_entrega=$3, monto_total=$4, anticipo_pagado=$5, estado_pago=$6 WHERE id=$7 RETURNING *',
-    [cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago, req.params.id]
-  );
-  res.json(rows[0]);
+  try {
+    const { cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago, estado_pedido } = req.body;
+    const { rows } = await pool.query(
+      'UPDATE pedidos SET cliente_id=$1, empleado_id=$2, fecha_entrega=$3, monto_total=$4, anticipo_pagado=$5, estado_pago=$6 WHERE id=$7 RETURNING *',
+      [cliente_id, empleado_id, fecha_entrega, monto_total, anticipo_pagado, estado_pago, req.params.id]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/pedidos/:id', auth, async (req, res) => {
-  await pool.query('DELETE FROM detalle_pedido WHERE pedido_id = $1', [req.params.id]);
-  await pool.query('DELETE FROM pedidos WHERE id = $1', [req.params.id]);
-  res.json({ ok: true });
+  try {
+    await pool.query('DELETE FROM detalle_pedido WHERE pedido_id = $1', [req.params.id]);
+    await pool.query('DELETE FROM pedidos WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── Usuarios ─────────────────────────────────────────────────────────────────
 app.get('/api/usuarios', auth, async (req, res) => {
-  const { rows } = await pool.query('SELECT id, nombre, email, rol, estado FROM usuarios ORDER BY id');
-  res.json(rows);
+  try {
+    const { rows } = await pool.query('SELECT id, nombre, email, rol, estado FROM usuarios ORDER BY id');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/usuarios', auth, async (req, res) => {
-  const { nombre, email, password, rol } = req.body;
-  const hash = await bcrypt.hash(password, 10);
-  const { rows } = await pool.query(
-    'INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES ($1, $2, $3, $4) RETURNING id',
-    [nombre, email, hash, rol]
-  );
-  res.status(201).json({ id: rows[0].id, nombre, email, rol, estado: 1 });
+  try {
+    const { nombre, email, password, rol } = req.body;
+    const hash = await bcrypt.hash(password, 10);
+    const { rows } = await pool.query(
+      'INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES ($1, $2, $3, $4) RETURNING id',
+      [nombre, email, hash, rol]
+    );
+    res.status(201).json({ id: rows[0].id, nombre, email, rol, estado: 1 });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.put('/api/usuarios/:id', auth, async (req, res) => {
-  const { nombre, email, rol, estado, password } = req.body;
-  let rows;
-  if (password) {
-    const hash = await bcrypt.hash(password, 10);
-    ({ rows } = await pool.query(
-      'UPDATE usuarios SET nombre=$1, email=$2, rol=$3, estado=$4, password_hash=$5 WHERE id=$6 RETURNING id, nombre, email, rol, estado',
-      [nombre, email, rol, estado, hash, req.params.id]
-    ));
-  } else {
-    ({ rows } = await pool.query(
-      'UPDATE usuarios SET nombre=$1, email=$2, rol=$3, estado=$4 WHERE id=$5 RETURNING id, nombre, email, rol, estado',
-      [nombre, email, rol, estado, req.params.id]
-    ));
+  try {
+    const { nombre, email, rol, estado, password } = req.body;
+    let rows;
+    if (password) {
+      const hash = await bcrypt.hash(password, 10);
+      ({ rows } = await pool.query(
+        'UPDATE usuarios SET nombre=$1, email=$2, rol=$3, estado=$4, password_hash=$5 WHERE id=$6 RETURNING id, nombre, email, rol, estado',
+        [nombre, email, rol, estado, hash, req.params.id]
+      ));
+    } else {
+      ({ rows } = await pool.query(
+        'UPDATE usuarios SET nombre=$1, email=$2, rol=$3, estado=$4 WHERE id=$5 RETURNING id, nombre, email, rol, estado',
+        [nombre, email, rol, estado, req.params.id]
+      ));
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
-  res.json(rows[0]);
 });
 
 app.delete('/api/usuarios/:id', auth, async (req, res) => {
-  await pool.query('DELETE FROM usuarios WHERE id = $1', [req.params.id]);
-  res.json({ ok: true });
+  try {
+    await pool.query('DELETE FROM usuarios WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── Start ────────────────────────────────────────────────────────────────────

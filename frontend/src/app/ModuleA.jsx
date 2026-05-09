@@ -269,7 +269,7 @@ export default function ModuleA() {
           <table className="w-full text-sm">
             <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440] sticky top-0">
               <tr>
-                {['#', 'Entrega', 'Total', 'Anticipo', 'Estado Pago', 'Estado Pedido'].map(h => (
+                {['#', 'Fecha de Entrega', 'Total', 'Anticipo', 'Estado Pago', 'Estado Pedido'].map(h => (
                   <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
                 ))}
               </tr>

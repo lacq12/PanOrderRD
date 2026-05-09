@@ -38,7 +38,7 @@ const PAGE_SIZE = 8
 
 const inputCls = "w-full bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#E37A33] focus:ring-1 focus:ring-[#E37A33] transition-all dark:text-white placeholder:text-zinc-400"
 
-function ConfirmModal({ onCancel, onConfirm }) {
+function ConfirmModal({ onCancel, onConfirm, error }) {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white dark:bg-[#1A1D24] border border-zinc-200 dark:border-[#303440] rounded-2xl p-6 max-w-md w-full shadow-xl">
@@ -50,13 +50,20 @@ function ConfirmModal({ onCancel, onConfirm }) {
             <h3 className="font-semibold text-lg">¿Eliminar producto?</h3>
             <p className="text-sm text-zinc-500 dark:text-[#8D96A5] mt-1">Esta acción no se puede deshacer.</p>
           </div>
+          {error && (
+            <div className="w-full bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
+              {error}
+            </div>
+          )}
           <div className="flex gap-3 w-full">
             <button onClick={onCancel} className="flex-1 px-4 py-2.5 border border-zinc-200 dark:border-[#303440] rounded-xl text-sm font-medium hover:bg-zinc-50 dark:hover:bg-[#242730] transition-colors">
               Cancelar
             </button>
-            <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors">
-              Eliminar
-            </button>
+            {!error && (
+              <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors">
+                Eliminar
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -235,6 +242,7 @@ export default function ModuleB() {
   const { productos, deleteProducto } = useStore()
   const [modal, setModal] = useState(null)
   const [deleteId, setDeleteId] = useState(null)
+  const [deleteError, setDeleteError] = useState('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const loading = useLoading()
@@ -257,8 +265,17 @@ export default function ModuleB() {
     <div className="space-y-6 animate-in fade-in duration-500">
       {deleteId != null && (
         <ConfirmModal
-          onCancel={() => setDeleteId(null)}
-          onConfirm={() => { deleteProducto(deleteId); setDeleteId(null) }}
+          onCancel={() => { setDeleteId(null); setDeleteError('') }}
+          error={deleteError}
+          onConfirm={async () => {
+            try {
+              await deleteProducto(deleteId)
+              setDeleteId(null)
+              setDeleteError('')
+            } catch (err) {
+              setDeleteError(err.message)
+            }
+          }}
         />
       )}
       {modal !== null && (
