@@ -5,21 +5,19 @@ export const useStore = create((set, get) => ({
   productos: [],
   clientes:  [],
   pedidos:   [],
-  empleados: [],
   usuarios:  [],
   unidades:  [],
 
   // ── Carga inicial desde la DB ──────────────────────────────────────────────
   loadAll: async () => {
-    const [productos, clientes, pedidos, empleados, usuarios, unidades] = await Promise.all([
+    const [productos, clientes, pedidos, usuarios, unidades] = await Promise.all([
       api.getProductos(),
       api.getClientes(),
       api.getPedidos(),
-      api.getEmpleados(),
       api.getUsuarios(),
       api.getUnidades().catch(() => []),
     ]);
-    set({ productos, clientes, pedidos, empleados, usuarios, unidades });
+    set({ productos, clientes, pedidos, usuarios, unidades });
   },
 
   // ── Productos ──────────────────────────────────────────────────────────────
@@ -67,21 +65,6 @@ export const useStore = create((set, get) => ({
   deletePedido: async (id) => {
     await api.deletePedido(id);
     set((s) => ({ pedidos: s.pedidos.filter(x => x.id !== id) }));
-  },
-
-  // ── Empleados ──────────────────────────────────────────────────────────────
-  addEmpleado: async (e) => {
-    const nuevo = await api.createEmpleado(e);
-    set((s) => ({ empleados: [...s.empleados, nuevo] }));
-    return nuevo;
-  },
-  updateEmpleado: async (id, e) => {
-    const updated = await api.updateEmpleado(id, e);
-    set((s) => ({ empleados: s.empleados.map(x => x.id === id ? updated : x) }));
-  },
-  deleteEmpleado: async (id) => {
-    await api.deleteEmpleado(id);
-    set((s) => ({ empleados: s.empleados.filter(x => x.id !== id) }));
   },
 
   // ── Usuarios ───────────────────────────────────────────────────────────────

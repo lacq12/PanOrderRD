@@ -55,19 +55,6 @@ export const api = {
   deleteCliente: (id) =>
     request('DELETE', `/clientes/${id}`),
 
-  // 👨‍💼 Empleados
-  getEmpleados: () =>
-    request('GET', '/empleados'),
-
-  createEmpleado: (data) =>
-    request('POST', '/empleados', data),
-
-  updateEmpleado: (id, data) =>
-    request('PUT', `/empleados/${id}`, data),
-
-  deleteEmpleado: (id) =>
-    request('DELETE', `/empleados/${id}`),
-
   // 🧾 Pedidos
   getPedidos: () =>
     request('GET', '/pedidos'),

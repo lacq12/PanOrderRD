@@ -173,55 +173,6 @@ app.delete('/api/clientes/:id', auth, async (req, res) => {
   }
 });
 
-// ── Empleados ────────────────────────────────────────────────────────────────
-app.get('/api/empleados', auth, async (req, res) => {
-  try {
-    const { rows } = await pool.query('SELECT * FROM empleados ORDER BY id');
-    res.json(rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/empleados', auth, async (req, res) => {
-  try {
-    const { nombre, apellido, cargo, telefono, salario } = req.body;
-    const { rows } = await pool.query(
-      'INSERT INTO empleados (nombre, apellido, cargo, telefono, salario) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [nombre, apellido, cargo, telefono, salario]
-    );
-    res.status(201).json(rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.put('/api/empleados/:id', auth, async (req, res) => {
-  try {
-    const { nombre, apellido, cargo, telefono, salario } = req.body;
-    const { rows } = await pool.query(
-      'UPDATE empleados SET nombre=$1, apellido=$2, cargo=$3, telefono=$4, salario=$5 WHERE id=$6 RETURNING *',
-      [nombre, apellido, cargo, telefono, salario, req.params.id]
-    );
-    res.json(rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.delete('/api/empleados/:id', auth, async (req, res) => {
-  try {
-    await pool.query('DELETE FROM empleados WHERE id = $1', [req.params.id]);
-    res.json({ ok: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // ── Pedidos ──────────────────────────────────────────────────────────────────
 app.get('/api/pedidos', auth, async (req, res) => {
   try {

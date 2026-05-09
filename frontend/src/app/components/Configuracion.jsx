@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useStore } from '../../store.js'
-import { Edit2, Trash2, Plus, Key, Users, X } from 'lucide-react'
+import { Edit2, Trash2, Plus, Key, X } from 'lucide-react'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useLoading, skeletonTheme } from '../../hooks/useLoading.js'
@@ -154,69 +154,9 @@ function UsuarioModal({ usuarioId, onClose }) {
   )
 }
 
-function EmpleadoModal({ empleadoId, onClose }) {
-  const { empleados, addEmpleado, updateEmpleado } = useStore()
-  const existing = empleadoId != null ? empleados.find(e => e.id === empleadoId) : null
-
-  const [form, setForm] = useState({
-    nombre: existing?.nombre || '',
-    cargo: existing?.cargo || '',
-    salario: existing?.salario ?? '',
-  })
-  const setField = (k, v) => setForm(f => ({ ...f, [k]: v }))
-
-  const handleSave = (e) => {
-    e.preventDefault()
-    const payload = { ...form, salario: parseFloat(form.salario) || 0 }
-    if (existing) updateEmpleado(existing.id, payload)
-    else addEmpleado(payload)
-    onClose()
-  }
-
-  return (
-    <BaseModal title={existing ? 'Editar empleado' : 'Nuevo empleado'} onClose={onClose}>
-      <form onSubmit={handleSave} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium block mb-1.5">Nombre Completo *</label>
-            <input required value={form.nombre} onChange={e => setField('nombre', e.target.value)} placeholder="Ej: Carlos Rodriguez" className={inputCls} />
-          </div>
-          <div>
-            <label className="text-sm font-medium block mb-1.5">Cargo *</label>
-            <input required value={form.cargo} onChange={e => setField('cargo', e.target.value)} placeholder="Ej: Vendedor" className={inputCls} />
-          </div>
-        </div>
-        <div>
-          <label className="text-sm font-medium block mb-1.5">Salario Mensual *</label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">$</span>
-            <input
-              type="number" step="0.01" min="0"
-              value={form.salario}
-              onChange={e => setField('salario', e.target.value)}
-              placeholder="0.00"
-              className={`${inputCls} pl-8`}
-            />
-          </div>
-        </div>
-        <div className="flex justify-end gap-3 pt-2 border-t border-zinc-200 dark:border-[#303440]">
-          <button type="button" onClick={onClose} className="px-5 py-2.5 text-sm font-medium text-zinc-600 dark:text-[#8D96A5] hover:text-zinc-900 dark:hover:text-white transition-colors">
-            Cancelar
-          </button>
-          <button type="submit" className="px-5 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-semibold transition-colors">
-            Guardar Empleado
-          </button>
-        </div>
-      </form>
-    </BaseModal>
-  )
-}
-
 export default function ModuleConfig() {
-  const { usuarios, deleteUsuario, empleados, deleteEmpleado } = useStore()
-  const [tab, setTab] = useState('usuarios')
+  const { usuarios, deleteUsuario } = useStore()
   const [usuarioModal, setUsuarioModal] = useState(null)
-  const [empleadoModal, setEmpleadoModal] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const loading = useLoading()
 
@@ -224,8 +164,7 @@ export default function ModuleConfig() {
 
   const handleDelete = () => {
     if (!deleteTarget) return
-    if (deleteTarget.type === 'usuario') deleteUsuario(deleteTarget.id)
-    else deleteEmpleado(deleteTarget.id)
+    deleteUsuario(deleteTarget.id)
     setDeleteTarget(null)
   }
 
@@ -233,7 +172,7 @@ export default function ModuleConfig() {
     <div className="space-y-6 animate-in fade-in duration-500">
       {deleteTarget && (
         <ConfirmModal
-          title={`¿Eliminar ${deleteTarget.type === 'usuario' ? 'usuario' : 'empleado'}?`}
+          title="¿Eliminar usuario?"
           onCancel={() => setDeleteTarget(null)}
           onConfirm={handleDelete}
         />
@@ -244,40 +183,13 @@ export default function ModuleConfig() {
           onClose={() => setUsuarioModal(null)}
         />
       )}
-      {empleadoModal !== null && (
-        <EmpleadoModal
-          empleadoId={empleadoModal === 'new' ? null : empleadoModal}
-          onClose={() => setEmpleadoModal(null)}
-        />
-      )}
 
       <div>
         <h1 className="text-xl font-bold">Configuración</h1>
-        <p className="text-sm text-zinc-500 dark:text-[#8D96A5]">Gestión de usuarios y empleados</p>
+        <p className="text-sm text-zinc-500 dark:text-[#8D96A5]">Gestión de usuarios del sistema</p>
       </div>
 
-      {/* Tab switcher */}
-      <div className="flex border-b border-zinc-200 dark:border-[#303440] gap-6">
-        {[
-          { key: 'usuarios', label: 'Usuarios', icon: <Key size={16} /> },
-          { key: 'empleados', label: 'Empleados', icon: <Users size={16} /> },
-        ].map(({ key, label, icon }) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-colors ${
-              tab === key
-                ? 'border-[#E37A33] text-[#E37A33]'
-                : 'border-transparent text-zinc-500 dark:text-[#8D96A5] hover:text-zinc-800 dark:hover:text-white'
-            }`}
-          >
-            {icon}{label}
-          </button>
-        ))}
-      </div>
-
-      {/* Usuarios */}
-      {tab === 'usuarios' && (
+      {(
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">Usuarios del sistema</h2>
@@ -325,64 +237,6 @@ export default function ModuleConfig() {
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
-      )}
-
-      {/* Empleados */}
-      {tab === 'empleados' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold">Empleados</h2>
-            <button onClick={() => setEmpleadoModal('new')} className="flex items-center gap-2 px-4 py-2.5 bg-[#E37A33] hover:bg-[#CC6824] text-white rounded-xl text-sm font-medium transition-colors">
-              <Plus size={16} /> Nuevo Empleado
-            </button>
-          </div>
-          <div className="border border-zinc-200 dark:border-[#303440] rounded-2xl bg-white dark:bg-[#1A1D24] overflow-hidden">
-            <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440]">
-                <tr>
-                  {['Nombre', 'Cargo', 'Salario', 'Acciones'].map(h => (
-                    <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-[#303440]/50">
-                {empleados.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="py-12 text-center text-zinc-500 dark:text-[#8D96A5]">
-                      <Users size={32} className="mx-auto opacity-40 mb-2" />
-                      <p className="font-medium">No hay empleados registrados</p>
-                    </td>
-                  </tr>
-                ) : empleados.map(e => (
-                  <tr key={e.id} className="hover:bg-zinc-50/50 dark:hover:bg-[#242730]/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-[#E37A33]/15 text-[#E37A33] flex items-center justify-center text-xs font-bold shrink-0">
-                          {e.nombre?.[0]?.toUpperCase() || '?'}
-                        </div>
-                        <span className="font-medium">{e.nombre}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{e.cargo}</td>
-                    <td className="px-6 py-4">
-                      {e.salario != null && e.salario !== ''
-                        ? new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(e.salario)
-                        : '—'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button onClick={() => setEmpleadoModal(e.id)} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#242730] transition-colors text-zinc-500 hover:text-zinc-800 dark:hover:text-white"><Edit2 size={15} /></button>
-                        <button onClick={() => setDeleteTarget({ type: 'empleado', id: e.id })} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-zinc-500 hover:text-red-500"><Trash2 size={15} /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </div>
           </div>
         </div>
       )}

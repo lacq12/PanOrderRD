@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useStore } from '../../store.js'
 import {
   Search, Eye, Edit2, Trash2, ArrowLeft, Plus, ShoppingCart,
-  Package, Check, AlertCircle, ChevronRight, Phone, Mail, Briefcase
+  Package, Check, AlertCircle, ChevronRight, Phone, Mail
 } from 'lucide-react'
 import { ClienteForm } from './Clientes.jsx'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
@@ -268,14 +268,13 @@ function PedidoDetalle({ pedido, onClose }) {
 
 // --- Multi-step form ---
 function PedidoForm({ pedidoId, onClose }) {
-  const { clientes, productos, empleados, addPedido, updatePedido, pedidos } = useStore()
+  const { clientes, productos, addPedido, updatePedido, pedidos } = useStore()
   const existing = pedidoId != null ? pedidos.find(p => p.id === pedidoId) : null
 
   const [step, setStep] = useState(1)
   const [error, setError] = useState('')
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [clienteId, setClienteId] = useState(existing?.cliente_id || null)
-  const [empleadoId, setEmpleadoId] = useState(existing?.empleado_id || '')
   const [carrito, setCarrito] = useState(
     existing?.items?.map(i => ({
       producto_id: i.producto_id,
@@ -330,7 +329,6 @@ function PedidoForm({ pedidoId, onClose }) {
     setError('')
     if (step === 1) {
       if (!clienteId) return setError('Debes seleccionar o crear un cliente para continuar.')
-      if (!empleadoId) return setError('Debes seleccionar un empleado para continuar.')
     }
     if (step === 2 && carrito.length === 0) return setError('Debes agregar al menos un producto al carrito.')
     if (step === 3) {
@@ -349,7 +347,6 @@ function PedidoForm({ pedidoId, onClose }) {
   const handleSave = () => {
     const payload = {
       cliente_id: clienteId,
-      empleado_id: parseInt(empleadoId),
       fecha_registro: today,
       fecha_entrega: fechaEntrega,
       notas,
@@ -368,7 +365,7 @@ function PedidoForm({ pedidoId, onClose }) {
   const clienteSel = clientes.find(c => c.id === clienteId)
 
   const stepMeta = [
-    { title: 'Datos Generales',    sub: 'Busca el cliente, registra uno nuevo, y asigna empleado' },
+    { title: 'Datos Generales',    sub: 'Busca el cliente o registra uno nuevo' },
     { title: 'Carrito de Compras', sub: 'Agrega los productos al pedido' },
     { title: 'Fecha de Entrega',   sub: 'Define cuándo se entregará el pedido' },
     { title: 'Registro de Cobro',  sub: 'Configura el anticipo y método de pago' },
@@ -483,24 +480,6 @@ function PedidoForm({ pedidoId, onClose }) {
                 </>
               )}
 
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Briefcase size={14} className="text-[#E37A33]" />
-                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-[#8D96A5]">Empleado Asignado</span>
-                </div>
-                <select
-                  value={empleadoId}
-                  onChange={e => setEmpleadoId(e.target.value)}
-                  className={inputCls}
-                >
-                  <option value="">— Seleccionar empleado —</option>
-                  {empleados.map(e => (
-                    <option key={e.id} value={e.id}>
-                      {e.nombre} {e.apellido}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
           )}
 
@@ -765,7 +744,7 @@ function PedidoForm({ pedidoId, onClose }) {
 
 // --- Main Module ---
 export default function ModuleD() {
-  const { pedidos, clientes, empleados, deletePedido } = useStore()
+  const { pedidos, clientes, deletePedido } = useStore()
   const [view, setView] = useState('list')
   const [editId, setEditId] = useState(null)
   const [deleteId, setDeleteId] = useState(null)
@@ -832,7 +811,7 @@ export default function ModuleD() {
           <table className="w-full text-sm">
             <thead className="bg-zinc-50 dark:bg-[#242730] border-b border-zinc-200 dark:border-[#303440]">
               <tr>
-                {['ID', 'Cliente', 'Empleado', 'Fecha Registro', 'Fecha de Entrega', 'Estado', 'Monto', 'Acciones'].map(h => (
+                {['ID', 'Cliente', 'Fecha Registro', 'Fecha de Entrega', 'Estado', 'Monto', 'Acciones'].map(h => (
                   <th key={h} className="px-6 py-3 text-xs font-medium text-zinc-500 dark:text-[#8D96A5] uppercase tracking-wide text-left">{h}</th>
                 ))}
               </tr>
@@ -840,19 +819,17 @@ export default function ModuleD() {
             <tbody className="divide-y divide-zinc-100 dark:divide-[#303440]/50">
               {paged.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-zinc-500 dark:text-[#8D96A5]">
+                  <td colSpan={7} className="py-12 text-center text-zinc-500 dark:text-[#8D96A5]">
                     <ShoppingCart size={32} className="mx-auto opacity-40 mb-2" />
                     <p className="font-medium">No hay pedidos encontrados.</p>
                   </td>
                 </tr>
               ) : paged.map(p => {
                 const cliente = clientes.find(c => c.id === p.cliente_id)
-                const empleado = empleados.find(e => e.id === p.empleado_id)
                 return (
                   <tr key={p.id} className="hover:bg-zinc-50/50 dark:hover:bg-[#242730]/30 transition-colors">
                     <td className="px-6 py-4 font-mono text-xs text-zinc-500">#{String(p.id).padStart(4, '0')}</td>
                     <td className="px-6 py-4 font-medium">{cliente ? `${cliente.nombre} ${cliente.apellido}` : '—'}</td>
-                    <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{empleado?.nombre || '—'}</td>
                     <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{formatDate(p.fecha_registro)}</td>
                     <td className="px-6 py-4 text-zinc-500 dark:text-[#8D96A5]">{formatDate(p.fecha_entrega)}</td>
                     <td className="px-6 py-4">
